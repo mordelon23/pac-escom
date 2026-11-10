@@ -1,0 +1,56 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+/* Paleta institucional del PAC (la misma de la documentación) */
+@theme {
+    --font-sans: ui-sans-serif, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --color-guinda-50: #faf3f6;
+    --color-guinda-100: #f4eef1;
+    --color-guinda-200: #e8d5df;
+    --color-guinda-300: #d3aec1;
+    --color-guinda-500: #8e2a5c;
+    --color-guinda-600: #7a2350;
+    --color-guinda-700: #6c1d45;
+    --color-guinda-800: #561637;
+    --color-guinda-900: #3d0f27;
+}
+
+@utility btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-guinda-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+@utility btn-primario {
+    @apply btn bg-guinda-700 text-white hover:bg-guinda-800;
+}
+
+@utility btn-secundario {
+    @apply btn border border-gray-300 bg-white text-gray-800 hover:bg-gray-50;
+}
+
+@utility btn-peligro {
+    @apply btn bg-red-700 text-white hover:bg-red-800;
+}
+
+@utility campo {
+    @apply mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-base text-gray-900 shadow-sm focus:border-guinda-500 focus:outline-none focus:ring-2 focus:ring-guinda-200;
+}
+
+@utility etiqueta {
+    @apply block text-sm font-medium text-gray-800;
+}
+
+@utility error {
+    @apply mt-1 text-sm text-red-700;
+}
+
+@utility tarjeta {
+    @apply rounded-xl border border-gray-200 bg-white shadow-sm;
+}
+
+@utility chip {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold;
+}

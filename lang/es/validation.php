@@ -1,0 +1,42 @@
+<?php
+
+return [
+    'accepted' => 'Debe aceptar :attribute.',
+    'after_or_equal' => ':Attribute debe ser una fecha igual o posterior a :date.',
+    'array' => ':Attribute debe ser una lista.',
+    'between' => ['numeric' => ':Attribute debe estar entre :min y :max.', 'string' => ':Attribute debe tener entre :min y :max caracteres.'],
+    'boolean' => ':Attribute debe ser verdadero o falso.',
+    'confirmed' => 'La confirmación de :attribute no coincide.',
+    'date' => ':Attribute no es una fecha válida.',
+    'date_format' => ':Attribute debe tener el formato :format.',
+    'email' => ':Attribute debe ser un correo electrónico válido.',
+    'enum' => 'El valor seleccionado en :attribute no es válido.',
+    'exists' => 'El valor seleccionado en :attribute no existe.',
+    'image' => ':Attribute debe ser una imagen.',
+    'in' => 'El valor seleccionado en :attribute no es válido.',
+    'integer' => ':Attribute debe ser un número entero.',
+    'max' => ['file' => ':Attribute no debe pesar más de :max kilobytes.', 'numeric' => ':Attribute no debe ser mayor que :max.', 'string' => ':Attribute no debe tener más de :max caracteres.', 'array' => ':Attribute no debe tener más de :max elementos.'],
+    'mimes' => ':Attribute debe ser un archivo de tipo: :values.',
+    'min' => ['numeric' => ':Attribute debe ser al menos :min.', 'string' => ':Attribute debe tener al menos :min caracteres.', 'array' => ':Attribute debe tener al menos :min elementos.'],
+    'numeric' => ':Attribute debe ser un número.',
+    'password' => [
+        'letters' => ':Attribute debe contener al menos una letra.',
+        'mixed' => ':Attribute debe contener al menos una mayúscula y una minúscula.',
+        'numbers' => ':Attribute debe contener al menos un número.',
+        'symbols' => ':Attribute debe contener al menos un símbolo.',
+        'uncompromised' => ':Attribute apareció en una filtración de datos. Elija otra.',
+    ],
+    'regex' => 'El formato de :attribute no es válido.',
+    'required' => ':Attribute es obligatorio.',
+    'required_if' => ':Attribute es obligatorio cuando :other es :value.',
+    'string' => ':Attribute debe ser texto.',
+    'unique' => ':Attribute ya está registrado.',
+
+    'attributes' => [
+        'correo' => 'correo', 'password' => 'contraseña', 'nombre' => 'nombre', 'apellidos' => 'apellidos',
+        'matricula' => 'boleta', 'titulo' => 'título', 'descripcion' => 'descripción', 'lugar' => 'lugar',
+        'cupo_maximo' => 'cupo máximo', 'fecha_inicio' => 'fecha de inicio', 'fecha_fin' => 'fecha de fin',
+        'categoria_id' => 'categoría', 'responsable_id' => 'responsable', 'imagen' => 'imagen',
+        'q' => 'búsqueda', 'dia' => 'día', 'categoria' => 'categoría',
+    ],
+];
