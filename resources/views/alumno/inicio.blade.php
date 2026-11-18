@@ -34,8 +34,8 @@
     <aside class="tarjeta h-fit p-5">
         <h2 class="font-semibold">Registrar asistencia</h2>
         <p class="mt-1 text-sm text-gray-600">Cuando el responsable muestre el código QR, escanéalo desde tu teléfono.</p>
-        <button class="btn-secundario mt-4 w-full" disabled title="Disponible en el Sprint 4">Escanear código QR</button>
-        <p class="mt-2 text-xs text-gray-500">Disponible en el Sprint 4.</p>
+        <a href="{{ route('asistencia.escanear') }}" class="btn-primario mt-4 w-full">Escanear código QR</a>
+        <p class="mt-2 text-xs text-gray-500">También puedes escanearlo con la app de cámara de tu teléfono.</p>
     </aside>
 </div>
 

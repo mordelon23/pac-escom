@@ -30,6 +30,9 @@
             </div>
         </dl>
 
+        <form method="POST" action="{{ route('agenda.alternar', $actividad) }}" class="mt-4">@csrf
+            <button class="btn-secundario w-full">{{ $enAgenda ? '★ Quitar de mi agenda' : '☆ Guardar en mi agenda' }}</button></form>
+
         <div class="mt-6 border-t border-gray-100 pt-6">
             @if ($inscripcion)
                 <p class="rounded-lg bg-green-50 px-3 py-2 text-sm font-medium text-green-900">Estás inscrito en esta actividad.</p>

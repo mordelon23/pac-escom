@@ -55,6 +55,7 @@ class CatalogoController extends Controller
             'actividad' => $actividad,
             'inscripcion' => $inscripcion,
             'activas' => $request->user()->inscripcionesActivas()->count(),
+            'enAgenda' => $request->user()->agenda()->where('actividades.id', $actividad->id)->exists(),
         ]);
     }
 }

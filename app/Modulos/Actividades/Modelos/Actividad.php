@@ -150,6 +150,6 @@ class Actividad extends Model
     {
         return str_starts_with($this->imagen_ruta, 'http')
             ? $this->imagen_ruta
-            : Storage::disk('public')->url($this->imagen_ruta);
+            : asset('storage/' . $this->imagen_ruta);   // relativa al host actual
     }
 }

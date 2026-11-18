@@ -77,6 +77,78 @@ class DemoSeeder extends Seeder
                 try { $inscribir->ejecutar($alumno, $id); } catch (\Throwable) { /* ya inscrito */ }
             }
         }
+
+        // Ajedrez se imparte de lunes a viernes: con inscritos siempre hay una sesión de hoy para probar el QR
+        $ajedrez = Actividad::where('titulo', 'Ajedrez competitivo')->value('id');
+        foreach ($alumnos->slice(1, 4) as $alumno) {
+            try { $inscribir->ejecutar($alumno, $ajedrez); } catch (\Throwable) { /* ya inscrito o límite */ }
+        }
+
+        $this->sesionesPasadas();
+        $this->publicacionesMuro($alumnos);
+    }
+
+    /** Sesiones de las dos semanas anteriores con asistencias (QR y algunas manuales), para reportes. */
+    private function sesionesPasadas(): void
+    {
+        if (\App\Modulos\Asistencia\Modelos\SesionAsistencia::exists()) {
+            return;
+        }
+        mt_srand(2026);
+        $actividades = Actividad::with(['horarios', 'inscripcionesActivas'])->where('fecha_inicio', '<', today())->get();
+        foreach ($actividades as $a) {
+            for ($d = today()->subDays(14); $d->lt(today()); $d = $d->addDay()) {
+                foreach ($a->horariosDelDia($d) as $h) {
+                    [$hh, $mm] = explode(':', $h->hora_inicio);
+                    $sesion = \App\Modulos\Asistencia\Modelos\SesionAsistencia::create([
+                        'horario_id' => $h->id, 'abierta_por' => $a->responsable_id, 'fecha' => $d->toDateString(),
+                        'inicio' => $d->copy()->setTime((int) $hh, (int) $mm), 'fin' => $d->copy()->setTime((int) $hh, (int) $mm)->addMinutes(20),
+                        'secreto_hmac' => \App\Modulos\Asistencia\Servicios\ServicioTokenQR::nuevoSecreto(), 'estado' => 'CERRADA',
+                    ]);
+                    foreach ($a->inscripcionesActivas as $k => $ins) {
+                        if (mt_rand(1, 100) > 80) {
+                            continue;   // ~20 % de inasistencia
+                        }
+                        $manual = mt_rand(1, 100) <= 12;
+                        $asis = \App\Modulos\Asistencia\Modelos\Asistencia::create([
+                            'sesion_id' => $sesion->id, 'usuario_id' => $ins->usuario_id,
+                            'registrada_por' => $manual ? $a->responsable_id : $ins->usuario_id,
+                            'metodo' => $manual ? 'MANUAL' : 'QR', 'registrada_en' => $sesion->inicio->copy()->addMinutes(mt_rand(1, 15)),
+                        ]);
+                        if ($manual) {
+                            \App\Modulos\Asistencia\Modelos\BitacoraContingencia::create([
+                                'sesion_id' => $sesion->id, 'asistencia_id' => $asis->id, 'alumno_id' => $ins->usuario_id,
+                                'responsable_id' => $a->responsable_id, 'motivo' => 'FALLA_DISPOSITIVO_ALUMNO',
+                                'detalle' => 'Teléfono sin batería',
+                            ]);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private function publicacionesMuro($alumnos): void
+    {
+        if (\App\Modulos\Comunidad\Modelos\Publicacion::exists()) {
+            return;
+        }
+        $textos = [
+            ['¡Primera clase de guitarra! Ya me salen los acordes de Sol y Re 🎸', 'APROBADA'],
+            ['La presentación de danza en la explanada estuvo increíble, gracias a todos los que fueron.', 'APROBADA'],
+            ['Recomiendo muchísimo el círculo de lectura, el libro de esta semana está buenísimo.', 'APROBADA'],
+            ['¿Alguien que quiera practicar ajedrez los viernes después del taller?', 'PENDIENTE'],
+            ['Excelente ambiente en el taller, se aprende mucho.', 'PENDIENTE'],
+        ];
+        foreach ($textos as $k => [$texto, $estado]) {
+            $alumno = $alumnos[$k % count($alumnos)];
+            $actividadId = $alumno->inscripciones()->value('actividad_id');
+            if ($actividadId) {
+                \App\Modulos\Comunidad\Modelos\Publicacion::create([
+                    'usuario_id' => $alumno->id, 'actividad_id' => $actividadId, 'contenido' => $texto, 'estado_moderacion' => $estado,
+                ]);
+            }
+        }
     }
 
     /** Genera una imagen SVG sencilla por categoría para no depender de archivos externos. */

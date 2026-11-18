@@ -65,6 +65,15 @@ class RegistrarContingencia
         }
     }
 
+    /** Regresa de CONTINGENCIA a ABIERTA cuando se restablece la conexión (diagrama de estados 3.3). */
+    public function reanudar(SesionAsistencia $sesion): void
+    {
+        if ($sesion->estado !== EstadoSesion::CONTINGENCIA) {
+            throw new ReglaNegocioException('RB20', 'La sesión no está en modo contingencia.');
+        }
+        $sesion->update(['estado' => EstadoSesion::ABIERTA]);
+    }
+
     public function cerrar(SesionAsistencia $sesion): void
     {
         $sesion->update(['estado' => EstadoSesion::CERRADA, 'fin' => now()]);

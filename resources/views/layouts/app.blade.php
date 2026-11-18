@@ -10,12 +10,18 @@
 <body class="min-h-screen bg-gray-50 font-sans text-gray-900 antialiased">
 @php
     $u = auth()->user();
+    // [ruta, texto, patrón de rutas que resaltan la opción]
     $nav = match (true) {
         $u->esAlumno() => [
-            ['alumno.inicio', 'Inicio'], ['actividades.index', 'Catálogo'], ['inscripciones.index', 'Mis actividades'],
+            ['alumno.inicio', 'Inicio', 'alumno.inicio'], ['actividades.index', 'Catálogo', 'actividades.*'], ['calendario', 'Calendario', 'calendario'],
+            ['inscripciones.index', 'Mis actividades', 'inscripciones.*'], ['agenda.index', 'Agenda', 'agenda.*'], ['muro.index', 'Muro', 'muro.*'],
         ],
-        $u->esCoordinador() => [['coordinacion.inicio', 'Coordinación'], ['responsable.inicio', 'Sesiones']],
-        default => [['responsable.inicio', 'Mis grupos']],
+        $u->esCoordinador() => array_merge([
+            ['coordinacion.inicio', 'Panel', 'coordinacion.inicio'], ['coordinacion.actividades.index', 'Actividades', 'coordinacion.actividades.*'],
+            ['responsable.inicio', 'Sesiones', 'responsable.*'], ['coordinacion.reportes', 'Reportes', 'coordinacion.reportes'],
+            ['coordinacion.muro.index', 'Moderación', 'coordinacion.muro.*'],
+        ], $u->esSuperadministrador() ? [['coordinacion.usuarios.index', 'Usuarios', 'coordinacion.usuarios.*']] : []),
+        default => [['responsable.inicio', 'Mis grupos', 'responsable.*']],
     };
 @endphp
 <a href="#contenido" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:px-3 focus:py-2">Saltar al contenido</a>
@@ -26,10 +32,10 @@
             <span class="grid h-8 w-8 place-items-center rounded-lg bg-white/15 text-sm">PAC</span>
             <span class="hidden sm:inline">Actividades Culturales</span>
         </a>
-        <nav class="ml-4 hidden gap-1 md:flex" aria-label="Principal">
-            @foreach ($nav as [$ruta, $texto])
+        <nav class="ml-4 hidden gap-1 lg:flex" aria-label="Principal">
+            @foreach ($nav as [$ruta, $texto, $patron])
                 <a href="{{ route($ruta) }}" @class(['rounded-lg px-3 py-2 text-sm font-medium hover:bg-white/10',
-                    'bg-white/15' => request()->routeIs($ruta . '*')]) @if(request()->routeIs($ruta)) aria-current="page" @endif>{{ $texto }}</a>
+                    'bg-white/15' => request()->routeIs($patron)]) @if(request()->routeIs($patron)) aria-current="page" @endif>{{ $texto }}</a>
             @endforeach
         </nav>
         <div class="ml-auto flex items-center gap-3">
@@ -43,9 +49,9 @@
         </div>
     </div>
     {{-- Navegación móvil --}}
-    <nav class="flex gap-1 overflow-x-auto border-t border-white/10 px-2 py-1.5 md:hidden" aria-label="Principal móvil">
-        @foreach ($nav as [$ruta, $texto])
-            <a href="{{ route($ruta) }}" @class(['shrink-0 rounded-lg px-3 py-1.5 text-sm', 'bg-white/15 font-semibold' => request()->routeIs($ruta . '*')])>{{ $texto }}</a>
+    <nav class="flex gap-1 overflow-x-auto border-t border-white/10 px-2 py-1.5 lg:hidden" aria-label="Principal móvil">
+        @foreach ($nav as [$ruta, $texto, $patron])
+            <a href="{{ route($ruta) }}" @class(['shrink-0 rounded-lg px-3 py-1.5 text-sm', 'bg-white/15 font-semibold' => request()->routeIs($patron)])>{{ $texto }}</a>
         @endforeach
     </nav>
 </header>

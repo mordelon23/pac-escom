@@ -27,14 +27,17 @@ class GuardarActividad
     {
         self::verificarTraslapes($datos['horarios']);
 
-        if ($actividad && $datos['cupo_maximo'] < $actividad->cupo_ocupado) {
-            throw new ReglaNegocioException('RB5', "El cupo no puede ser menor al número de inscritos ({$actividad->cupo_ocupado}).");
-        }
-        if ($actividad && in_array($actividad->estado, [EstadoActividad::CANCELADA, EstadoActividad::FINALIZADA], true)) {
-            throw new ReglaNegocioException('RB8', 'No se puede editar una actividad cancelada o finalizada.');
-        }
-
         return DB::transaction(function () use ($coordinador, $datos, $imagen, $actividad) {
+            if ($actividad) {
+                // Se relee con bloqueo: el cupo ocupado pudo cambiar mientras se editaba el formulario
+                $actividad = Actividad::query()->lockForUpdate()->findOrFail($actividad->id);
+                if ($datos['cupo_maximo'] < $actividad->cupo_ocupado) {
+                    throw new ReglaNegocioException('RB5', "El cupo no puede ser menor al número de inscritos ({$actividad->cupo_ocupado}).");
+                }
+                if (in_array($actividad->estado, [EstadoActividad::CANCELADA, EstadoActividad::FINALIZADA], true)) {
+                    throw new ReglaNegocioException('RB8', 'No se puede editar una actividad cancelada o finalizada.');
+                }
+            }
             $campos = collect($datos)->except('horarios')->all();
             if ($imagen) {
                 $campos['imagen_ruta'] = $imagen->store('actividades', 'public');   // nombre aleatorio
@@ -42,20 +45,40 @@ class GuardarActividad
 
             if ($actividad) {
                 $actividad->update($campos);
-                $actividad->horarios()->delete();
                 $accion = 'actividad.editar';
             } else {
                 $actividad = Actividad::create($campos + ['creada_por' => $coordinador->id, 'estado' => EstadoActividad::BORRADOR]);
                 $accion = 'actividad.crear';
             }
-
-            foreach ($datos['horarios'] as $h) {
-                $actividad->horarios()->create($h);
-            }
+            $this->sincronizarHorarios($actividad, $datos['horarios']);
             Auditor::registrar($accion, 'actividades', $actividad->id, ['titulo' => $actividad->titulo]);
 
             return $actividad->load('horarios');
         });
+    }
+
+    /**
+     * Actualiza los horarios conservando los que ya tienen sesiones de asistencia
+     * (la llave foránea impide borrarlos y su historial debe conservarse).
+     */
+    private function sincronizarHorarios(Actividad $actividad, array $nuevos): void
+    {
+        $existentes = $actividad->horarios()->withCount('sesiones')->get();
+        $restantes = collect($nuevos);
+
+        foreach ($existentes as $h) {
+            $i = $restantes->search(fn ($n) => (int) $n['dia_semana'] === $h->dia_semana->value);
+            if ($i !== false) {
+                $h->update($restantes->pull($i));
+            } elseif ($h->sesiones_count > 0) {
+                throw new ReglaNegocioException('RB26', 'No se puede quitar el horario del ' . $h->dia_semana->etiqueta() . ' porque ya tiene sesiones de asistencia registradas.');
+            } else {
+                $h->delete();
+            }
+        }
+        foreach ($restantes as $h) {
+            $actividad->horarios()->create($h);
+        }
     }
 
     /** RB26: no puede haber dos horarios traslapados el mismo día. */

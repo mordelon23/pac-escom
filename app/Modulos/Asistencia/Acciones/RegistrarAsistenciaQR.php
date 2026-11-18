@@ -10,6 +10,7 @@ use App\Modulos\Asistencia\Servicios\ServicioTokenQR;
 use App\Modulos\Compartido\Excepciones\ReglaNegocioException;
 use App\Modulos\Identidad\Modelos\Usuario;
 use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Support\Facades\DB;
 
 /** CU6 — Registrar asistencia mediante el código QR dinámico (diagrama de secuencia 2.3). */
 class RegistrarAsistenciaQR
@@ -31,13 +32,14 @@ class RegistrarAsistenciaQR
         }
 
         try {
-            return Asistencia::create([
+            // DB::transaction crea un savepoint si ya hay una transacción abierta: un duplicado no la invalida.
+            return DB::transaction(fn () => Asistencia::create([
                 'sesion_id' => $sesion->id,
                 'usuario_id' => $alumno->id,
                 'registrada_por' => $alumno->id,
                 'metodo' => MetodoAsistencia::QR,
                 'registrada_en' => now(),
-            ]);
+            ]));
         } catch (UniqueConstraintViolationException) {
             throw new ReglaNegocioException('RB21', 'Su asistencia ya fue registrada.');
         }

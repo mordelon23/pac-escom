@@ -59,6 +59,9 @@ Las pruebas usan la base `pac_test` (ver `phpunit.xml`). Cubren las reglas de ne
 | `tests/Feature/Reglas/InscripcionesTest.php` | RB4, RB5, RB6, RB9 y RB19 |
 | `tests/Feature/Reglas/AsistenciaTest.php` | RB20, RB21, RB22 y RB23 |
 | `tests/Feature/Http/AutenticacionTest.php` | CU1, CU2, RB12, RB24, cuenta suspendida y control de acceso por rol |
+| `tests/Feature/Reglas/ActividadesTest.php` | CU11: borrador con horarios, publicación (RB10), cupo (RB5), horarios con sesiones (RB26), cancelación (RB8) |
+| `tests/Feature/Reglas/ComunidadUsuariosTest.php` | RB16 (muro y moderación), CU15 y RB25 (usuarios) |
+| `tests/Feature/Http/PantallasTest.php` | Todas las pantallas por rol, flujo QR por HTTP, formulario de actividad y CSV |
 
 ---
 
@@ -112,13 +115,28 @@ Pasos generales:
 
 ---
 
+## Funcionalidad por rol
+
+| Rol | Pantallas |
+|---|---|
+| Alumno | Inicio con próximas sesiones y recomendaciones · catálogo con filtros · detalle e inscripción · mis actividades e historial · calendario mensual · agenda cultural · muro social · escáner de QR |
+| Responsable de grupo | Mis grupos y sesiones de hoy · sesión con QR dinámico (se renueva cada 30 s) · modo contingencia con bitácora · resumen de asistencia |
+| Coordinador | Panel con indicadores · actividades (crear, editar, publicar, cancelar, eliminar borrador) con horarios semanales · inscritos · reportes (pantalla, CSV para Excel, versión imprimible/PDF) · moderación del muro · sesiones |
+| Superadministrador | Todo lo del coordinador + usuarios y roles (alta de personal, cambio de rol, suspensión y reactivación) |
+
+### Probar el pase de lista con QR
+1. Entra como `chernandez@ipn.mx` → **Mis grupos** → «Abrir sesión de asistencia» (Ajedrez se imparte de lunes a viernes).
+2. En otro navegador o en el teléfono, entra como `alumno1@alumno.ipn.mx` y escanea el código (con la cámara del teléfono o desde **Inicio → Escanear código QR**).
+3. Para escanear desde el teléfono en tu red local: `php artisan serve --host=0.0.0.0` y abre `http://IP-de-tu-PC:8000`. La cámara del navegador requiere HTTPS salvo en `localhost`; con la app de cámara del teléfono funciona sin HTTPS porque solo abre el enlace.
+
 ## Avance por Sprint
 
 | Sprint | Alcance | Estado |
 |---|---|---|
 | 0 | Proyecto, base de datos completa, modelos, reglas de dominio y pruebas | ✅ |
 | 1 | Login (RB12, RB24), registro (RB1–RB3), recuperación de contraseña (RB13), roles | ✅ |
-| 3 | Catálogo con filtros, detalle, inscribirse y cancelar (RB4–RB6, RB9), mis actividades, inicio del alumno | ✅ |
-| 2 | Panel de coordinación: crear, editar, publicar y cancelar actividades con horarios | ⏳ (la lógica ya existe y tiene pruebas) |
-| 4 | Sesión con QR dinámico, escáner del alumno y contingencia | ⏳ (la lógica ya existe y tiene pruebas) |
-| 5 | Agenda, muro social y moderación, reportes, calendario, superadministrador | ⏳ |
+| 2 | Panel de coordinación: actividades con horarios, publicar, cancelar, inscritos | ✅ |
+| 3 | Catálogo, inscripción y cancelación (RB4–RB6, RB9), mis actividades, inicio | ✅ |
+| 4 | Sesión con QR dinámico, escáner del alumno, contingencia y resumen | ✅ |
+| 5 | Agenda, calendario, muro y moderación, reportes, usuarios y roles | ✅ |
+| Pendiente | Exportación .xlsx nativa (hoy CSV compatible con Excel), PDF generado en servidor (hoy versión imprimible), pruebas de carga y análisis OWASP ZAP | ⏳ |
