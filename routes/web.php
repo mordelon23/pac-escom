@@ -9,14 +9,15 @@ use App\Modulos\Asistencia\Http\Controllers\GruposController;
 use App\Modulos\Asistencia\Http\Controllers\SesionAsistenciaController;
 use App\Modulos\Comunidad\Http\Controllers\ModeracionController;
 use App\Modulos\Comunidad\Http\Controllers\MuroController;
-use App\Modulos\Identidad\Http\Controllers\UsuariosController;
-use App\Modulos\Inscripciones\Http\Controllers\AgendaController;
-use App\Modulos\Reportes\Http\Controllers\ReportesController;
 use App\Modulos\Identidad\Http\Controllers\ContrasenaController;
 use App\Modulos\Identidad\Http\Controllers\RegistroController;
 use App\Modulos\Identidad\Http\Controllers\SesionController;
+use App\Modulos\Identidad\Http\Controllers\UsuariosController;
+use App\Modulos\Inscripciones\Http\Controllers\AgendaController;
+use App\Modulos\Inscripciones\Http\Controllers\ExportarCalendarioController;
 use App\Modulos\Inscripciones\Http\Controllers\InicioAlumnoController;
 use App\Modulos\Inscripciones\Http\Controllers\InscripcionController;
+use App\Modulos\Reportes\Http\Controllers\ReportesController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -37,11 +38,12 @@ Route::middleware('guest')->group(function () {
     Route::get('/olvide-contrasena', [ContrasenaController::class, 'solicitar'])->name('password.request');
     Route::post('/olvide-contrasena', [ContrasenaController::class, 'enviar'])->middleware('throttle:5,1')->name('password.email');
     Route::get('/restablecer/{token}', [ContrasenaController::class, 'formulario'])->name('password.reset');
-    Route::post('/restablecer', [ContrasenaController::class, 'restablecer'])->name('password.update');
+    Route::post('/restablecer', [ContrasenaController::class, 'restablecer'])->middleware('throttle:10,1')->name('password.update');
 });
 
 Route::middleware(['auth', 'cuenta.activa'])->group(function () {
     Route::post('/logout', [SesionController::class, 'destroy'])->name('logout');
+    Route::view('/ayuda', 'ayuda')->name('ayuda');
 
     /* ---------- Alumno ---------- */
     Route::middleware('rol:alumno')->group(function () {
@@ -53,6 +55,7 @@ Route::middleware(['auth', 'cuenta.activa'])->group(function () {
         Route::delete('/inscripciones/{inscripcion}', [InscripcionController::class, 'destroy'])->name('inscripciones.destroy');
         Route::get('/mis-actividades', [InscripcionController::class, 'index'])->name('inscripciones.index');
         Route::get('/calendario', CalendarioController::class)->name('calendario');
+        Route::get('/calendario/mis-actividades.ics', ExportarCalendarioController::class)->name('calendario.ics');
         Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda.index');
         Route::post('/agenda/{actividad}', [AgendaController::class, 'alternar'])->name('agenda.alternar');
         Route::get('/muro', [MuroController::class, 'index'])->name('muro.index');

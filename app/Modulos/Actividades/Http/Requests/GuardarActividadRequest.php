@@ -3,6 +3,7 @@
 namespace App\Modulos\Actividades\Http\Requests;
 
 use App\Modulos\Identidad\Enums\RolSistema;
+use App\Modulos\Identidad\Modelos\Rol;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -23,7 +24,7 @@ class GuardarActividadRequest extends FormRequest
             'categoria_id' => ['required', 'integer', 'exists:categorias,id'],
             'lugar' => ['required', 'string', 'min:3', 'max:120'],
             'responsable_id' => ['required', 'integer', Rule::exists('usuarios', 'id')->where(fn ($q) => $q->whereIn('rol_id',
-                \App\Modulos\Identidad\Modelos\Rol::whereIn('clave', [RolSistema::RESPONSABLE->value, RolSistema::COORDINADOR->value])->pluck('id')))],
+                Rol::whereIn('clave', [RolSistema::RESPONSABLE->value, RolSistema::COORDINADOR->value])->pluck('id')))],
             'fecha_inicio' => array_filter(['required', 'date', $creando ? 'after_or_equal:today' : null]),
             'fecha_fin' => ['required', 'date', 'after_or_equal:fecha_inicio'],
             'cupo_maximo' => ['required', 'integer', 'between:1,500'],

@@ -81,7 +81,7 @@
                     <div class="grid grid-cols-[8rem_1fr_1fr] items-center gap-3 py-3">
                         <label class="flex items-center gap-2 font-medium">
                             <input type="checkbox" name="dias[{{ $d->value }}][activo]" value="1" class="h-4 w-4 accent-guinda-700" @checked($activo)
-                                   onchange="this.closest('div').querySelectorAll('input[type=time]').forEach(i => i.disabled = ! this.checked)">
+                                   data-activa-horas>
                             {{ $d->etiqueta() }}
                         </label>
                         <label class="text-sm"><span class="sr-only">Hora de inicio del {{ $d->etiqueta() }}</span>

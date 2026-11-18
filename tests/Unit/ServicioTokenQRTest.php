@@ -20,28 +20,28 @@ class ServicioTokenQRTest extends TestCase
 
     public function test_token_valido_en_la_misma_ventana(): void
     {
-        $svc = new ServicioTokenQR;
+        $svc = new ServicioTokenQR(30);
         $t = 1_800_000_010;
         $this->assertTrue($svc->validar($this->sesion(), $svc->generar($this->sesion(), $t), $t + 15));
     }
 
     public function test_se_acepta_la_ventana_anterior(): void
     {
-        $svc = new ServicioTokenQR;
+        $svc = new ServicioTokenQR(30);
         $t = 1_800_000_010;
         $this->assertTrue($svc->validar($this->sesion(), $svc->generar($this->sesion(), $t), $t + 30));
     }
 
     public function test_token_de_hace_dos_ventanas_expira(): void
     {
-        $svc = new ServicioTokenQR;
+        $svc = new ServicioTokenQR(30);
         $t = 1_800_000_010;
         $this->assertFalse($svc->validar($this->sesion(), $svc->generar($this->sesion(), $t), $t + 61));
     }
 
     public function test_token_de_otra_sesion_no_sirve(): void
     {
-        $svc = new ServicioTokenQR;
+        $svc = new ServicioTokenQR(30);
         $t = 1_800_000_010;
         $token = $svc->generar($this->sesion(7, str_repeat('a', 64)), $t);
         $this->assertFalse($svc->validar($this->sesion(8, str_repeat('b', 64)), $token, $t));
@@ -49,6 +49,6 @@ class ServicioTokenQRTest extends TestCase
 
     public function test_token_con_formato_invalido(): void
     {
-        $this->assertFalse((new ServicioTokenQR)->validar($this->sesion(), "' OR 1=1 --"));
+        $this->assertFalse((new ServicioTokenQR(30))->validar($this->sesion(), "' OR 1=1 --"));
     }
 }

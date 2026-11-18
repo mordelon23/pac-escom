@@ -18,7 +18,7 @@
                 <form method="POST" action="{{ route('responsable.sesiones.reanudar', $sesion) }}">@csrf @method('PATCH')
                     <button class="btn-secundario">Reanudar con QR</button></form>
             @endif
-            <form method="POST" action="{{ route('responsable.sesiones.cerrar', $sesion) }}" onsubmit="return confirm('¿Finalizar el pase de lista? Ya no se podrán registrar asistencias.')">@csrf @method('PATCH')
+            <form method="POST" action="{{ route('responsable.sesiones.cerrar', $sesion) }}" data-confirmar="¿Finalizar el pase de lista? Ya no se podrán registrar asistencias.">@csrf @method('PATCH')
                 <button class="btn-primario">Finalizar pase de lista</button></form>
         </div>
     @endif

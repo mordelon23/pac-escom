@@ -23,7 +23,7 @@
                         <td class="px-4 py-3">
                             @if (in_array($u->rol->clave, ['responsable', 'coordinador']) && $u->id !== auth()->id())
                                 <form method="POST" action="{{ route('coordinacion.usuarios.update', $u) }}">@csrf @method('PATCH')
-                                    <select name="rol" class="campo mt-0 py-1.5 text-sm" onchange="this.form.submit()" aria-label="Rol de {{ $u->nombre }}">
+                                    <select name="rol" class="campo mt-0 py-1.5 text-sm" data-enviar-al-cambiar aria-label="Rol de {{ $u->nombre }}">
                                         <option value="responsable" @selected($u->rol->clave === 'responsable')>Responsable de grupo</option>
                                         <option value="coordinador" @selected($u->rol->clave === 'coordinador')>Coordinador</option>
                                     </select></form>
@@ -35,7 +35,7 @@
                         <td class="px-4 py-3">
                             @if ($u->id !== auth()->id() && ! $u->esSuperadministrador())
                                 <form method="POST" action="{{ route('coordinacion.usuarios.update', $u) }}"
-                                      onsubmit="return confirm('{{ $u->estaActiva() ? '¿Suspender' : '¿Reactivar' }} la cuenta de {{ e($u->nombreCompleto()) }}?')">@csrf @method('PATCH')
+                                      data-confirmar="{{ $u->estaActiva() ? '¿Suspender' : '¿Reactivar' }} la cuenta de {{ $u->nombreCompleto() }}?">@csrf @method('PATCH')
                                     <input type="hidden" name="estado" value="{{ $u->estaActiva() ? 'SUSPENDIDA' : 'ACTIVA' }}">
                                     <button class="text-sm font-medium {{ $u->estaActiva() ? 'text-red-700' : 'text-green-700' }} hover:underline">{{ $u->estaActiva() ? 'Suspender' : 'Reactivar' }}</button></form>
                             @endif

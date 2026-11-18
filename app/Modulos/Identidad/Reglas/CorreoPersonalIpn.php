@@ -14,7 +14,7 @@ class CorreoPersonalIpn implements ValidationRule
     {
         $partes = explode('@', mb_strtolower(trim((string) $value)));
         if (count($partes) !== 2 || $partes[0] === '' || $partes[1] !== self::DOMINIO) {
-            $fail('Utilice un correo institucional del personal (@' . self::DOMINIO . ').');
+            $fail('Utilice un correo institucional del personal (@'.self::DOMINIO.').');
         }
     }
 }

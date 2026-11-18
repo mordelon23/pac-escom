@@ -1,0 +1,6 @@
+@extends('errors.layout')
+@section('codigo', '419')
+@section('titulo', 'Tu sesión expiró')
+@section('mensaje', 'Pasó mucho tiempo sin actividad y, por seguridad, el formulario ya no es válido. Regresa a la página anterior, recárgala y vuelve a intentarlo.')
+@section('boton', 'Volver')
+@section('enlace', url()->previous())

@@ -14,7 +14,7 @@ class AbrirSesionAsistencia
 {
     public function ejecutar(Usuario $responsable, Horario $horario): SesionAsistencia
     {
-        $actividad = $horario->actividad;
+        $actividad = $horario->loadMissing('actividad')->actividad;
         if ($actividad->responsable_id !== $responsable->id && ! $responsable->esCoordinador()) {
             throw new ReglaNegocioException('RBAC', 'Solo el responsable asignado puede abrir la sesión.');
         }

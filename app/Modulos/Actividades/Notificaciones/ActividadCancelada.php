@@ -23,10 +23,10 @@ class ActividadCancelada extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Actividad cancelada: ' . $this->actividad->titulo)
-            ->greeting('Hola, ' . $notifiable->nombre)
+            ->subject('Actividad cancelada: '.$this->actividad->titulo)
+            ->greeting('Hola, '.$notifiable->nombre)
             ->line("Lamentamos informarte que la actividad «{$this->actividad->titulo}» fue cancelada.")
-            ->line('Tu inscripción se canceló automáticamente y ya no cuenta para tu límite de cinco actividades.')
+            ->line('Tu inscripción se canceló automáticamente y ya no cuenta para tu límite de '.config('pac.reglas.max_inscripciones_activas').' actividades.')
             ->action('Explorar otras actividades', url('/actividades'));
     }
 }

@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $titulo ?? 'Inicio' }} · PAC ESCOM</title>
+    <meta name="theme-color" content="#6C1D45">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-gray-50 font-sans text-gray-900 antialiased">
@@ -44,8 +46,10 @@
                 <div class="text-white/75">{{ $u->rolSistema()->etiqueta() }}</div>
             </div>
             <span class="grid h-9 w-9 place-items-center rounded-full bg-white/20 text-sm font-bold" aria-hidden="true">{{ $u->iniciales() }}</span>
+            <a href="{{ route('ayuda') }}" @class(['rounded-lg px-3 py-2 text-sm font-medium hover:bg-white/10', 'bg-white/15' => request()->routeIs('ayuda')])
+               @if(request()->routeIs('ayuda')) aria-current="page" @endif>Ayuda</a>
             <button type="button" class="rounded-lg px-3 py-2 text-sm font-medium hover:bg-white/10"
-                    onclick="document.getElementById('confirmar-salida').showModal()">Salir</button>
+                    data-abrir-dialogo="confirmar-salida">Salir</button>
         </div>
     </div>
     {{-- Navegación móvil --}}
@@ -63,7 +67,7 @@
         <h2 class="text-lg font-semibold">¿Cerrar sesión?</h2>
         <p class="mt-2 text-sm text-gray-600">Tendrás que volver a ingresar tu correo y contraseña.</p>
         <div class="mt-6 flex justify-end gap-2">
-            <button type="button" class="btn-secundario" onclick="this.closest('dialog').close()">Cancelar</button>
+            <button type="button" class="btn-secundario" data-cerrar-dialogo>Cancelar</button>
             <button type="submit" class="btn-primario">Cerrar sesión</button>
         </div>
     </form>

@@ -19,12 +19,13 @@
         <div><dt class="text-gray-500">Registros manuales</dt><dd class="text-xl font-bold">{{ $totales['manuales'] }}</dd></div>
     </dl>
     <div class="flex gap-2">
-        <a class="btn-secundario" href="{{ request()->fullUrlWithQuery(['formato' => 'csv']) }}">Descargar Excel (CSV)</a>
+        <a class="btn-secundario" href="{{ request()->fullUrlWithQuery(['formato' => 'xlsx']) }}">Descargar Excel (.xlsx)</a>
+        <a class="btn-secundario" href="{{ request()->fullUrlWithQuery(['formato' => 'csv']) }}">CSV</a>
         <a class="btn-secundario" target="_blank" href="{{ request()->fullUrlWithQuery(['formato' => 'imprimir']) }}">Versión imprimible / PDF</a>
     </div>
 </div>
 
-<div class="tarjeta mt-4 overflow-x-auto">
+<div class="tarjeta mt-4 overflow-x-auto" tabindex="0" role="region" aria-label="Tabla del reporte (desplazable)">
     <table class="w-full min-w-[48rem] text-left text-sm">
         <thead class="bg-gray-50 text-gray-600"><tr>
             <th class="px-4 py-3 font-medium">Actividad</th><th class="px-4 py-3 font-medium">Inscritos</th><th class="px-4 py-3 font-medium">Ocupación</th>

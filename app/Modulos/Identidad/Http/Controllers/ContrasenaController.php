@@ -3,6 +3,7 @@
 namespace App\Modulos\Identidad\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modulos\Compartido\Notificaciones\Notificador;
 use App\Modulos\Identidad\Modelos\Usuario;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
@@ -23,7 +24,10 @@ class ContrasenaController extends Controller
     public function enviar(Request $request): RedirectResponse
     {
         $request->validate(['correo' => ['required', 'email', 'max:120']]);
-        Password::sendResetLink(['correo' => mb_strtolower(trim($request->correo))]);
+        $enviado = Notificador::intentar(fn () => Password::sendResetLink(['correo' => mb_strtolower(trim($request->correo))]), 'enlace de restablecimiento');
+        if (! $enviado) {
+            return back()->withInput()->withErrors(['correo' => 'En este momento no es posible enviar correos. Intente de nuevo en unos minutos.']);
+        }
 
         // Misma respuesta exista o no la cuenta, para no revelar qué correos están registrados.
         return back()->with('estado', 'Si el correo está registrado, recibirá un enlace para restablecer su contraseña (válido 10 minutos).');

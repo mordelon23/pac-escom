@@ -1,7 +1,7 @@
 @extends('layouts.invitado')
 @section('titulo', 'Recuperar contraseña')
 @section('contenido')
-<h2 class="text-2xl font-bold">Recuperar contraseña</h2>
+<h1 class="text-2xl font-bold">Recuperar contraseña</h1>
 <p class="mt-1 text-sm text-gray-600">Te enviaremos un enlace válido durante 10 minutos.</p>
 <form method="POST" action="{{ route('password.email') }}" class="mt-8 space-y-5">
     @csrf

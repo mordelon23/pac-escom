@@ -1,7 +1,10 @@
 import QRCode from 'qrcode';
 
 /**
- * Pantalla del responsable: consulta cada 2 s el estado de la sesión y redibuja el QR cuando cambia el token (cada 30 s).
+ * Pantalla del responsable: consulta cada 2 s el estado de la sesión y redibuja el QR cuando cambia el token.
+ * - Eficiencia: deja de consultar mientras la pestaña está oculta y reanuda al volver.
+ * - Tolerancia a fallos: si el servidor no responde, muestra el aviso para activar el modo contingencia
+ *   y lo oculta solo cuando la conexión se recupera.
  */
 export function iniciar(raiz) {
     const lienzo = raiz.querySelector('[data-qr]');
@@ -11,11 +14,14 @@ export function iniciar(raiz) {
     const lista = raiz.querySelector('[data-ultimos]');
     const aviso = raiz.querySelector('[data-aviso]');
     let urlActual = null;
+    let ventana = 30;
     let segundos = 30;
+    let consulta = null;
 
     async function consultar() {
         try {
             const r = await fetch(raiz.dataset.endpoint, { headers: { Accept: 'application/json' } });
+            if (r.status === 401 || r.status === 419) { window.location.reload(); return; }   // la sesión del navegador expiró
             if (!r.ok) throw new Error(r.status);
             const d = await r.json();
             aviso.hidden = true;
@@ -25,6 +31,7 @@ export function iniciar(raiz) {
                 await QRCode.toCanvas(lienzo, d.url, { width: Math.min(420, raiz.clientWidth - 32), margin: 1, errorCorrectionLevel: 'M',
                     color: { dark: '#3d0f27', light: '#ffffff' } });
             }
+            ventana = d.ventana ?? ventana;
             segundos = d.segundos;
             asistentes.textContent = `${d.asistentes} / ${d.inscritos}`;
             lista.innerHTML = d.ultimos.map((u) =>
@@ -38,12 +45,23 @@ export function iniciar(raiz) {
     function tic() {
         segundos = Math.max(0, segundos - 1);
         cuenta.textContent = segundos;
-        barra.style.width = `${(segundos / 30) * 100}%`;
+        barra.style.width = `${(segundos / ventana) * 100}%`;
     }
 
     const escapar = (s) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-    consultar();
-    setInterval(consultar, 2000);
+    function activar() {
+        if (consulta) return;
+        consultar();
+        consulta = setInterval(consultar, 2000);
+    }
+    function pausar() {
+        clearInterval(consulta);
+        consulta = null;
+    }
+
+    document.addEventListener('visibilitychange', () => (document.hidden ? pausar() : activar()));
+    window.addEventListener('online', consultar);
+    activar();
     setInterval(tic, 1000);
 }

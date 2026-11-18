@@ -52,6 +52,6 @@ class Horario extends Model
 
     public function rango(): string
     {
-        return substr($this->hora_inicio, 0, 5) . '–' . substr($this->hora_fin, 0, 5);
+        return substr($this->hora_inicio, 0, 5).'–'.substr($this->hora_fin, 0, 5);
     }
 }

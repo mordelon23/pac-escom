@@ -4,10 +4,10 @@ namespace App\Modulos\Comunidad\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modulos\Actividades\Modelos\Actividad;
+use App\Modulos\Compartido\Excepciones\ReglaNegocioException;
 use App\Modulos\Comunidad\Acciones\PublicarEnMuro;
 use App\Modulos\Comunidad\Enums\EstadoModeracion;
 use App\Modulos\Comunidad\Modelos\Publicacion;
-use App\Modulos\Compartido\Excepciones\ReglaNegocioException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;

@@ -17,7 +17,7 @@ class CorreoAlumnoIpn implements ValidationRule
     {
         $partes = explode('@', mb_strtolower(trim((string) $value)));
         if (count($partes) !== 2 || $partes[0] === '' || $partes[1] !== self::DOMINIO) {
-            $fail('Utilice su correo institucional con dominio @' . self::DOMINIO . '.');
+            $fail('Utilice su correo institucional con dominio @'.self::DOMINIO.'.');
         }
     }
 }

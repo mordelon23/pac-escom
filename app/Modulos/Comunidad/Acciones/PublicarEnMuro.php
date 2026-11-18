@@ -2,9 +2,9 @@
 
 namespace App\Modulos\Comunidad\Acciones;
 
+use App\Modulos\Compartido\Excepciones\ReglaNegocioException;
 use App\Modulos\Comunidad\Enums\EstadoModeracion;
 use App\Modulos\Comunidad\Modelos\Publicacion;
-use App\Modulos\Compartido\Excepciones\ReglaNegocioException;
 use App\Modulos\Identidad\Modelos\Usuario;
 use Illuminate\Http\UploadedFile;
 

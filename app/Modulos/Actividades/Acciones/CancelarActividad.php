@@ -7,10 +7,10 @@ use App\Modulos\Actividades\Modelos\Actividad;
 use App\Modulos\Actividades\Notificaciones\ActividadCancelada;
 use App\Modulos\Compartido\Auditoria\Auditor;
 use App\Modulos\Compartido\Excepciones\ReglaNegocioException;
+use App\Modulos\Compartido\Notificaciones\Notificador;
 use App\Modulos\Identidad\Modelos\Usuario;
 use App\Modulos\Inscripciones\Enums\EstadoInscripcion;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Notification;
 
 /**
  * CU11 — Cancelar una actividad (diagrama de actividades 4.5): cancela inscripciones, registra en
@@ -31,13 +31,14 @@ class CancelarActividad
                 'estado' => EstadoInscripcion::CANCELADA->value,
                 'fecha_cancelacion' => now(),
             ]);
-            $actividad->update(['estado' => EstadoActividad::CANCELADA, 'cupo_ocupado' => 0]);
+            // forceFill: cupo_ocupado no es asignable desde formularios; con update() el 0 se descartaba en silencio (defecto D-11).
+            $actividad->forceFill(['estado' => EstadoActividad::CANCELADA, 'cupo_ocupado' => 0])->save();
             Auditor::registrar('actividad.cancelar', 'actividades', $actividad->id, ['inscritos_afectados' => $ids->count()]);
 
             return Usuario::whereIn('id', $ids)->get();
         });
 
-        Notification::send($alumnos, new ActividadCancelada($actividad->refresh()));
+        Notificador::enviar($alumnos, new ActividadCancelada($actividad->refresh()));
 
         return $alumnos->count();
     }

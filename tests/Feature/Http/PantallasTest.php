@@ -2,12 +2,15 @@
 
 namespace Tests\Feature\Http;
 
-use App\Modulos\Asistencia\Acciones\AbrirSesionAsistencia;
+use App\Modulos\Actividades\Modelos\Categoria;
+use App\Modulos\Asistencia\Modelos\SesionAsistencia;
 use App\Modulos\Asistencia\Servicios\ServicioTokenQR;
 use App\Modulos\Identidad\Enums\RolSistema;
 use App\Modulos\Inscripciones\Acciones\InscribirAlumno;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Tests\Support\CreaDatos;
 use Tests\TestCase;
 
@@ -43,7 +46,7 @@ class PantallasTest extends TestCase
         $this->actingAs($this->usuario(RolSistema::COORDINADOR));
         $a = $this->actividad();
         foreach (['/coordinacion', '/coordinacion/actividades', '/coordinacion/actividades/create', "/coordinacion/actividades/{$a->id}",
-                     "/coordinacion/actividades/{$a->id}/edit", '/coordinacion/reportes', '/coordinacion/reportes?formato=imprimir', '/coordinacion/muro', '/responsable'] as $url) {
+            "/coordinacion/actividades/{$a->id}/edit", '/coordinacion/reportes', '/coordinacion/reportes?formato=imprimir', '/coordinacion/muro', '/responsable'] as $url) {
             $this->get($url)->assertOk();
         }
         $csv = $this->get('/coordinacion/reportes?formato=csv');
@@ -65,10 +68,10 @@ class PantallasTest extends TestCase
         $horario = $a->horarios->firstWhere(fn ($h) => $h->dia_semana->value === now()->dayOfWeekIso);
 
         $this->actingAs($a->responsable)->post("/responsable/horarios/{$horario->id}/sesiones")->assertRedirect();
-        $sesion = \App\Modulos\Asistencia\Modelos\SesionAsistencia::first();
+        $sesion = SesionAsistencia::first();
         $this->get("/responsable/sesiones/{$sesion->id}")->assertOk();
         $estado = $this->getJson("/responsable/sesiones/{$sesion->id}/estado")->assertOk()->json();
-        $this->assertStringContainsString('asistencia/escanear?s=' . $sesion->id, $estado['url']);
+        $this->assertStringContainsString('asistencia/escanear?s='.$sesion->id, $estado['url']);
 
         $token = app(ServicioTokenQR::class)->generar($sesion);
         $this->actingAs($alumno)->postJson('/asistencia', ['sesion' => $sesion->id, 'token' => $token])->assertCreated()->assertJson(['ok' => true]);
@@ -80,16 +83,16 @@ class PantallasTest extends TestCase
 
     public function test_crear_actividad_por_formulario(): void
     {
-        \Illuminate\Support\Facades\Storage::fake('public');
+        Storage::fake('public');
         $coord = $this->usuario(RolSistema::COORDINADOR);
         $resp = $this->usuario(RolSistema::RESPONSABLE);
-        $cat = \App\Modulos\Actividades\Modelos\Categoria::firstOrCreate(['nombre' => 'Danza']);
+        $cat = Categoria::firstOrCreate(['nombre' => 'Danza']);
 
         $this->actingAs($coord)->post('/coordinacion/actividades', [
             'titulo' => 'Danza contemporánea', 'descripcion' => 'Exploración del movimiento y la expresión corporal.',
             'categoria_id' => $cat->id, 'responsable_id' => $resp->id, 'lugar' => 'Explanada',
             'fecha_inicio' => now()->addDay()->toDateString(), 'fecha_fin' => now()->addMonth()->toDateString(), 'cupo_maximo' => 20,
-            'imagen' => \Illuminate\Http\UploadedFile::fake()->image('d.png'),
+            'imagen' => UploadedFile::fake()->image('d.png'),
             'dias' => [2 => ['activo' => 1, 'inicio' => '13:00', 'fin' => '15:00'], 4 => ['activo' => 1, 'inicio' => '13:00', 'fin' => '15:00']],
         ])->assertRedirect();
         $this->assertDatabaseHas('actividades', ['titulo' => 'Danza contemporánea', 'estado' => 'BORRADOR']);

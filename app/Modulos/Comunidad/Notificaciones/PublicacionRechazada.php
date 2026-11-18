@@ -23,8 +23,8 @@ class PublicacionRechazada extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('Tu publicación en el muro no fue aprobada')
-            ->line('Tu publicación sobre «' . $this->publicacion->actividad->titulo . '» no fue aprobada.')
-            ->line('Motivo: ' . $this->publicacion->motivo_rechazo)
+            ->line('Tu publicación sobre «'.$this->publicacion->actividad->titulo.'» no fue aprobada.')
+            ->line('Motivo: '.$this->publicacion->motivo_rechazo)
             ->action('Ir al muro', url('/muro'));
     }
 }

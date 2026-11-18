@@ -28,6 +28,10 @@ export function iniciar(raiz) {
                 headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-TOKEN': csrf },
                 body: JSON.stringify({ sesion: Number(sesion), token }),
             });
+            // Respuestas que no son del registro: sesión vencida, demasiados intentos o error del servidor.
+            if (r.status === 401 || r.status === 419) { mostrar(false, 'Tu sesión expiró. Recarga la página, vuelve a iniciar sesión y escanea de nuevo.'); return; }
+            if (r.status === 429) { mostrar(false, 'Demasiados intentos seguidos. Espera un minuto y vuelve a escanear.'); return; }
+            if (r.status >= 500) { mostrar(false, 'El sistema tuvo un problema. Pide al responsable que registre tu asistencia en modo contingencia.'); return; }
             const d = await r.json();
             mostrar(d.ok, d.mensaje ?? 'No fue posible registrar la asistencia.');
             if (d.ok && lector) { await lector.stop(); boton.hidden = false; boton.textContent = 'Escanear otro código'; }

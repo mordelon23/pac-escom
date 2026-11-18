@@ -2,11 +2,12 @@
 
 namespace App\Modulos\Comunidad\Acciones;
 
+use App\Modulos\Compartido\Auditoria\Auditor;
+use App\Modulos\Compartido\Excepciones\ReglaNegocioException;
+use App\Modulos\Compartido\Notificaciones\Notificador;
 use App\Modulos\Comunidad\Enums\EstadoModeracion;
 use App\Modulos\Comunidad\Modelos\Publicacion;
 use App\Modulos\Comunidad\Notificaciones\PublicacionRechazada;
-use App\Modulos\Compartido\Auditoria\Auditor;
-use App\Modulos\Compartido\Excepciones\ReglaNegocioException;
 use App\Modulos\Identidad\Modelos\Usuario;
 
 /** CU13 — Moderar publicaciones del muro (RB16). */
@@ -24,7 +25,7 @@ class ModerarPublicacion
         $this->verificarPendiente($p);
         $p->update(['estado_moderacion' => EstadoModeracion::RECHAZADA, 'moderada_por' => $coordinador->id, 'motivo_rechazo' => $motivo]);
         Auditor::registrar('publicacion.rechazar', 'publicaciones', $p->id, ['motivo' => $motivo]);
-        $p->autor->notify(new PublicacionRechazada($p));
+        Notificador::enviar($p->autor, new PublicacionRechazada($p));
     }
 
     private function verificarPendiente(Publicacion $p): void

@@ -13,7 +13,9 @@ class ValidacionIdentidadTest extends TestCase
     private function falla(object $regla, string $valor): bool
     {
         $fallo = false;
-        $regla->validate('campo', $valor, function () use (&$fallo) { $fallo = true; });
+        $regla->validate('campo', $valor, function () use (&$fallo) {
+            $fallo = true;
+        });
 
         return $fallo;
     }

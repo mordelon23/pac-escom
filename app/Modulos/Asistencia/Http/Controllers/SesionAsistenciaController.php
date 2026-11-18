@@ -59,6 +59,7 @@ class SesionAsistenciaController extends Controller
             'estado' => $sesion->estado->value,
             'url' => $abierta ? route('asistencia.escanear', ['s' => $sesion->id, 't' => $token]) : null,
             'segundos' => $tokens->segundosRestantes(),
+            'ventana' => $tokens->segundosVentana(),
             'asistentes' => $sesion->asistencias()->count(),
             'inscritos' => $sesion->horario->actividad->inscripcionesActivas()->count(),
             'ultimos' => $ultimos->map(fn ($a) => ['nombre' => $a->alumno->nombreCompleto(), 'hora' => $a->registrada_en->format('H:i:s'), 'metodo' => $a->metodo->value]),

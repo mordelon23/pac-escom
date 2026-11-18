@@ -14,8 +14,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Inscripcion extends Model
 {
-    public const HORAS_MINIMAS_CANCELACION = 24;   // RB9
-
     protected $table = 'inscripciones';
 
     protected $attributes = ['estado' => 'ACTIVA'];
@@ -54,6 +52,6 @@ class Inscripcion extends Model
         }
         $inicio = $this->actividad->inicioPrimeraSesion();
 
-        return $inicio === null || ($ahora ?? now())->diffInHours($inicio, false) >= self::HORAS_MINIMAS_CANCELACION;
+        return $inicio === null || ($ahora ?? now())->diffInHours($inicio, false) >= config('pac.reglas.horas_minimas_cancelacion');
     }
 }

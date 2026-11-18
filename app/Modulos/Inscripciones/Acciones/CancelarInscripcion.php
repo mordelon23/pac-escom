@@ -27,7 +27,7 @@ class CancelarInscripcion
                 throw new ReglaNegocioException('RB9', 'La inscripción ya no está activa.');
             }
             if (! $inscripcion->esCancelable()) {
-                throw new ReglaNegocioException('RB9', 'Solo puede cancelar hasta 24 horas antes del inicio de la actividad.');
+                throw new ReglaNegocioException('RB9', 'Solo puede cancelar hasta '.config('pac.reglas.horas_minimas_cancelacion').' horas antes del inicio de la actividad.');
             }
 
             $inscripcion->update(['estado' => EstadoInscripcion::CANCELADA, 'fecha_cancelacion' => now()]);

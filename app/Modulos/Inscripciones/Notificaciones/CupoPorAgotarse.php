@@ -23,8 +23,8 @@ class CupoPorAgotarse extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Cupo al ' . $this->actividad->porcentajeOcupacion() . ' %: ' . $this->actividad->titulo)
+            ->subject('Cupo al '.$this->actividad->porcentajeOcupacion().' %: '.$this->actividad->titulo)
             ->line("La actividad «{$this->actividad->titulo}» tiene {$this->actividad->cupo_ocupado} de {$this->actividad->cupo_maximo} lugares ocupados.")
-            ->action('Ver actividad', url('/coordinacion/actividades/' . $this->actividad->id));
+            ->action('Ver actividad', url('/coordinacion/actividades/'.$this->actividad->id));
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Modulos\Identidad\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modulos\Compartido\Notificaciones\Notificador;
 use App\Modulos\Identidad\Enums\RolSistema;
 use App\Modulos\Identidad\Http\Requests\RegistroAlumnoRequest;
 use App\Modulos\Identidad\Modelos\Rol;
@@ -28,7 +29,7 @@ class RegistroController extends Controller
         ]);
 
         if (config('pac.verificar_correo')) {
-            event(new Registered($usuario));   // envía el correo de verificación
+            Notificador::intentar(fn () => event(new Registered($usuario)), 'correo de verificación');   // envía el correo de verificación
         } else {
             $usuario->markEmailAsVerified();
         }

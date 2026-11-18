@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * @property EstadoActividad $estado
@@ -150,6 +149,6 @@ class Actividad extends Model
     {
         return str_starts_with($this->imagen_ruta, 'http')
             ? $this->imagen_ruta
-            : asset('storage/' . $this->imagen_ruta);   // relativa al host actual
+            : asset('storage/'.$this->imagen_ruta);   // relativa al host actual
     }
 }

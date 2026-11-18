@@ -39,6 +39,7 @@
     </div>
 </form>
 
+<h2 class="sr-only">Actividades encontradas</h2>
 <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
     @forelse ($actividades as $actividad)
         @include('partials.tarjeta-actividad', ['actividad' => $actividad, 'inscrito' => in_array($actividad->id, $inscritas)])

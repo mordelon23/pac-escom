@@ -4,11 +4,12 @@ namespace App\Modulos\Inscripciones\Acciones;
 
 use App\Modulos\Actividades\Modelos\Actividad;
 use App\Modulos\Compartido\Excepciones\ReglaNegocioException;
+use App\Modulos\Compartido\Notificaciones\Notificador;
 use App\Modulos\Identidad\Modelos\Usuario;
 use App\Modulos\Inscripciones\Enums\EstadoInscripcion;
 use App\Modulos\Inscripciones\Modelos\Inscripcion;
-use App\Modulos\Inscripciones\Notificaciones\InscripcionConfirmada;
 use App\Modulos\Inscripciones\Notificaciones\CupoPorAgotarse;
+use App\Modulos\Inscripciones\Notificaciones\InscripcionConfirmada;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -17,9 +18,6 @@ use Illuminate\Support\Facades\DB;
  */
 class InscribirAlumno
 {
-    public const MAXIMO_INSCRIPCIONES_ACTIVAS = 5;   // RB6
-    public const PORCENTAJE_AVISO_CUPO = 90;          // RB19
-
     public function ejecutar(Usuario $alumno, int $actividadId): Inscripcion
     {
         [$inscripcion, $actividad, $cruzoUmbral] = DB::transaction(function () use ($alumno, $actividadId) {
@@ -38,8 +36,9 @@ class InscribirAlumno
             if (! $actividad->tieneCupo()) {
                 throw new ReglaNegocioException('RB5', 'La actividad ya no tiene lugares disponibles.');
             }
-            if ($alumno->inscripcionesActivas()->count() >= self::MAXIMO_INSCRIPCIONES_ACTIVAS) {
-                throw new ReglaNegocioException('RB6', 'Alcanzó el límite de cinco actividades simultáneas.');
+            $maximo = config('pac.reglas.max_inscripciones_activas');
+            if ($alumno->inscripcionesActivas()->count() >= $maximo) {
+                throw new ReglaNegocioException('RB6', "Alcanzó el límite de {$maximo} actividades simultáneas.");
             }
 
             $porcentajeAntes = $actividad->porcentajeOcupacion();
@@ -52,16 +51,18 @@ class InscribirAlumno
             ]);
             $actividad->increment('cupo_ocupado');
 
-            $cruzoUmbral = $porcentajeAntes < self::PORCENTAJE_AVISO_CUPO
-                && $actividad->porcentajeOcupacion() >= self::PORCENTAJE_AVISO_CUPO;
+            $umbral = config('pac.reglas.porcentaje_aviso_cupo');
+            $cruzoUmbral = $porcentajeAntes < $umbral && $actividad->porcentajeOcupacion() >= $umbral;
 
             return [$inscripcion, $actividad, $cruzoUmbral];
         });
 
-        // Fuera de la transacción: los correos se encolan (no retrasan la respuesta).
-        $alumno->notify(new InscripcionConfirmada($inscripcion->load('actividad.horarios')));
+        // Fuera de la transacción: si el correo falla, la inscripción ya quedó guardada.
+        Notificador::enviar($alumno, new InscripcionConfirmada($inscripcion->load('actividad.horarios')));
         if ($cruzoUmbral) {
-            Usuario::find($actividad->creada_por)?->notify(new CupoPorAgotarse($actividad));
+            if ($coordinador = Usuario::find($actividad->creada_por)) {
+                Notificador::enviar($coordinador, new CupoPorAgotarse($actividad));
+            }
         }
 
         return $inscripcion;

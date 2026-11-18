@@ -4,6 +4,7 @@ namespace App\Modulos\Identidad\Acciones;
 
 use App\Modulos\Compartido\Auditoria\Auditor;
 use App\Modulos\Compartido\Excepciones\ReglaNegocioException;
+use App\Modulos\Compartido\Notificaciones\Notificador;
 use App\Modulos\Identidad\Enums\EstadoCuenta;
 use App\Modulos\Identidad\Enums\RolSistema;
 use App\Modulos\Identidad\Modelos\Rol;
@@ -26,7 +27,7 @@ class GestionarUsuarios
             'correo' => mb_strtolower($datos['correo']), 'password' => $temporal,
         ]);
         $usuario->markEmailAsVerified();
-        Password::sendResetLink(['correo' => $usuario->correo]);
+        Notificador::intentar(fn () => Password::sendResetLink(['correo' => $usuario->correo]), 'enlace para definir contraseña');
         Auditor::registrar('usuario.crear', 'usuarios', $usuario->id, ['rol' => $datos['rol']]);
 
         return [$usuario, $temporal];

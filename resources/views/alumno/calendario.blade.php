@@ -10,6 +10,7 @@
         <a class="btn-secundario" href="{{ route('calendario', ['mias' => $soloMias ?: null]) }}">Hoy</a>
         <a class="btn-secundario" href="{{ route('calendario', ['mes' => $mes->addMonth()->format('Y-m'), 'mias' => $soloMias ?: null]) }}" aria-label="Mes siguiente">→</a>
         <a href="{{ route('calendario', ['mes' => $mes->format('Y-m'), 'mias' => $soloMias ? null : 1]) }}" @class(['btn', 'bg-guinda-700 text-white' => $soloMias, 'btn-secundario' => ! $soloMias])>Solo mis actividades</a>
+        <a class="btn-secundario" href="{{ route('calendario.ics') }}" title="Archivo .ics para Google Calendar, Outlook o el calendario del teléfono">Exportar a mi calendario</a>
     </div>
 </div>
 
@@ -20,7 +21,7 @@
     </div>
     <div class="grid grid-cols-7">
         @foreach ($dias as $dia)
-            <div @class(['min-h-28 border-b border-r border-gray-100 p-1.5', 'bg-gray-50/70 text-gray-400' => ! $dia['delMes']])>
+            <div @class(['min-h-28 border-b border-r border-gray-100 p-1.5', 'bg-gray-50/70 text-gray-500' => ! $dia['delMes']])>
                 <div @class(['mb-1 inline-grid h-6 w-6 place-items-center rounded-full text-xs font-semibold', 'bg-guinda-700 text-white' => $dia['fecha']->isToday()])>{{ $dia['fecha']->day }}</div>
                 @foreach (array_slice($dia['eventos'], 0, 3) as $e)
                     <a href="{{ route('actividades.show', $e['actividad']) }}" title="{{ $e['actividad']->titulo }} · {{ $e['horario']->rango() }}"

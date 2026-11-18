@@ -14,11 +14,11 @@
         @if ($actividad->estado->value === 'BORRADOR')
             <form method="POST" action="{{ route('coordinacion.actividades.publicar', $actividad) }}">@csrf @method('PATCH')
                 <button class="btn-primario">Publicar</button></form>
-            <form method="POST" action="{{ route('coordinacion.actividades.destroy', $actividad) }}" onsubmit="return confirm('¿Eliminar este borrador?')">@csrf @method('DELETE')
+            <form method="POST" action="{{ route('coordinacion.actividades.destroy', $actividad) }}" data-confirmar="¿Eliminar este borrador?">@csrf @method('DELETE')
                 <button class="btn-secundario text-red-700">Eliminar</button></form>
         @endif
         @if ($actividad->estado->value === 'PUBLICADA')
-            <button type="button" class="btn-peligro" onclick="document.getElementById('confirmar-cancelacion').showModal()">Cancelar actividad</button>
+            <button type="button" class="btn-peligro" data-abrir-dialogo="confirmar-cancelacion">Cancelar actividad</button>
         @endif
     </div>
 </div>
@@ -72,7 +72,7 @@
         <h2 class="text-lg font-semibold">¿Cancelar «{{ $actividad->titulo }}»?</h2>
         <p class="mt-2 text-sm text-gray-600">Se cancelarán las {{ $actividad->inscripcionesActivas->count() }} inscripciones activas y se notificará por correo a cada alumno (RB8). Esta acción no se puede deshacer.</p>
         <div class="mt-6 flex justify-end gap-2">
-            <button type="button" class="btn-secundario" onclick="this.closest('dialog').close()">Volver</button>
+            <button type="button" class="btn-secundario" data-cerrar-dialogo>Volver</button>
             <button class="btn-peligro">Sí, cancelar actividad</button>
         </div>
     </form>

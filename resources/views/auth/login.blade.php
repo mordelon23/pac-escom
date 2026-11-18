@@ -1,7 +1,7 @@
 @extends('layouts.invitado')
 @section('titulo', 'Iniciar sesión')
 @section('contenido')
-<h2 class="text-2xl font-bold">Iniciar sesión</h2>
+<h1 class="text-2xl font-bold">Iniciar sesión</h1>
 <p class="mt-1 text-sm text-gray-600">Ingresa con tu correo institucional.</p>
 
 <form method="POST" action="{{ url('/login') }}" class="mt-8 space-y-5" novalidate>

@@ -34,11 +34,11 @@ class InicioAlumnoController extends Controller
             ->whereNotIn('id', $activas->pluck('actividad_id'))
             ->whereColumn('cupo_ocupado', '<', 'cupo_maximo')
             ->when($categorias->isNotEmpty(), fn ($q) => $q->orderByRaw(
-                'CASE WHEN categoria_id IN (' . $categorias->map(fn ($c) => (int) $c)->implode(',') . ') THEN 0 ELSE 1 END'))
+                'CASE WHEN categoria_id IN ('.$categorias->map(fn ($c) => (int) $c)->implode(',').') THEN 0 ELSE 1 END'))
             ->orderBy('fecha_inicio')->limit(3)->get();
 
         return view('alumno.inicio', [
-            'proximas' => $proximas->sortBy(fn ($p) => $p['fecha']->format('Ymd') . $p['horario']->hora_inicio)->take(6),
+            'proximas' => $proximas->sortBy(fn ($p) => $p['fecha']->format('Ymd').$p['horario']->hora_inicio)->take(6),
             'activas' => $activas,
             'recomendadas' => $recomendadas,
         ]);

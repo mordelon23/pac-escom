@@ -71,7 +71,7 @@ class GuardarActividad
             if ($i !== false) {
                 $h->update($restantes->pull($i));
             } elseif ($h->sesiones_count > 0) {
-                throw new ReglaNegocioException('RB26', 'No se puede quitar el horario del ' . $h->dia_semana->etiqueta() . ' porque ya tiene sesiones de asistencia registradas.');
+                throw new ReglaNegocioException('RB26', 'No se puede quitar el horario del '.$h->dia_semana->etiqueta().' porque ya tiene sesiones de asistencia registradas.');
             } else {
                 $h->delete();
             }
@@ -91,7 +91,7 @@ class GuardarActividad
                     DiaSemana::from((int) $lista[$i]['dia_semana']), $lista[$i]['hora_inicio'], $lista[$i]['hora_fin'],
                     DiaSemana::from((int) $lista[$j]['dia_semana']), $lista[$j]['hora_inicio'], $lista[$j]['hora_fin'],
                 )) {
-                    throw new ReglaNegocioException('RB26', 'Hay horarios traslapados el ' . DiaSemana::from((int) $lista[$i]['dia_semana'])->etiqueta() . '.');
+                    throw new ReglaNegocioException('RB26', 'Hay horarios traslapados el '.DiaSemana::from((int) $lista[$i]['dia_semana'])->etiqueta().'.');
                 }
             }
         }

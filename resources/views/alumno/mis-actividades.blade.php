@@ -18,12 +18,12 @@
                     <p class="mt-1 text-xs text-gray-500">Folio {{ str_pad($i->id, 6, '0', STR_PAD_LEFT) }} · inscrito el {{ $i->fecha_inscripcion->format('d/m/Y') }}</p>
                 </div>
                 @if ($i->esCancelable())
-                    <form method="POST" action="{{ route('inscripciones.destroy', $i) }}" onsubmit="return confirm('¿Cancelar tu inscripción? Se liberará tu lugar.')">
+                    <form method="POST" action="{{ route('inscripciones.destroy', $i) }}" data-confirmar="¿Cancelar tu inscripción? Se liberará tu lugar.">
                         @csrf @method('DELETE')
                         <button class="btn-secundario w-full sm:w-auto">Cancelar</button>
                     </form>
                 @else
-                    <span class="text-xs text-gray-500 sm:w-36 sm:text-right">No cancelable: la actividad ya inició o faltan menos de 24 h</span>
+                    <span class="text-xs text-gray-500 sm:w-36 sm:text-right">No cancelable: la actividad ya inició o faltan menos de {{ config('pac.reglas.horas_minimas_cancelacion') }} h</span>
                 @endif
             </article>
         @empty

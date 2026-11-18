@@ -6,6 +6,7 @@ use App\Modulos\Actividades\Acciones\CancelarActividad;
 use App\Modulos\Actividades\Acciones\GuardarActividad;
 use App\Modulos\Actividades\Acciones\PublicarActividad;
 use App\Modulos\Actividades\Enums\EstadoActividad;
+use App\Modulos\Actividades\Modelos\Categoria;
 use App\Modulos\Actividades\Notificaciones\ActividadCancelada;
 use App\Modulos\Asistencia\Modelos\SesionAsistencia;
 use App\Modulos\Asistencia\Servicios\ServicioTokenQR;
@@ -35,7 +36,7 @@ class ActividadesTest extends TestCase
     private function datos(array $horarios = [[1, '14:00', '16:00'], [3, '14:00', '16:00']]): array
     {
         return [
-            'categoria_id' => \App\Modulos\Actividades\Modelos\Categoria::firstOrCreate(['nombre' => 'Teatro'])->id,
+            'categoria_id' => Categoria::firstOrCreate(['nombre' => 'Teatro'])->id,
             'responsable_id' => $this->usuario(RolSistema::RESPONSABLE)->id,
             'titulo' => 'Taller de improvisación', 'descripcion' => 'Descripción suficientemente larga.', 'lugar' => 'Auditorio',
             'fecha_inicio' => now()->addWeek()->toDateString(), 'fecha_fin' => now()->addMonths(2)->toDateString(), 'cupo_maximo' => 20,

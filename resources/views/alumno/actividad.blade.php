@@ -38,12 +38,12 @@
                 <p class="rounded-lg bg-green-50 px-3 py-2 text-sm font-medium text-green-900">Estás inscrito en esta actividad.</p>
                 @if ($inscripcion->setRelation('actividad', $actividad)->esCancelable())
                     <form method="POST" action="{{ route('inscripciones.destroy', $inscripcion) }}" class="mt-4"
-                          onsubmit="return confirm('¿Cancelar tu inscripción? Se liberará tu lugar.')">
+                          data-confirmar="¿Cancelar tu inscripción? Se liberará tu lugar.">
                         @csrf @method('DELETE')
                         <button class="btn-secundario w-full">Cancelar inscripción</button>
                     </form>
                 @else
-                    <p class="mt-3 text-xs text-gray-500">Ya no es posible cancelar: la actividad ya inició o faltan menos de 24 horas para su inicio (RB9).</p>
+                    <p class="mt-3 text-xs text-gray-500">Ya no es posible cancelar: la actividad ya inició o faltan menos de {{ config('pac.reglas.horas_minimas_cancelacion') }} horas para su inicio (RB9).</p>
                 @endif
             @elseif ($actividad->cupoLleno())
                 <button class="btn-primario w-full" disabled>Cupo lleno</button>
@@ -52,11 +52,11 @@
                 <p class="mt-2 text-xs text-gray-600">Ya tienes 5 inscripciones activas, el máximo permitido.</p>
             @else
                 <form method="POST" action="{{ route('inscripciones.store', $actividad) }}"
-                      onsubmit="return confirm('¿Confirmas tu inscripción a «{{ e($actividad->titulo) }}»?')">
+                      data-confirmar="¿Confirmas tu inscripción a «{{ $actividad->titulo }}»?">
                     @csrf
                     <button class="btn-primario w-full">Inscribirme</button>
                 </form>
-                <p class="mt-2 text-xs text-gray-500">Podrás cancelar hasta 24 horas antes del inicio.</p>
+                <p class="mt-2 text-xs text-gray-500">Podrás cancelar hasta {{ config('pac.reglas.horas_minimas_cancelacion') }} horas antes del inicio.</p>
             @endif
         </div>
     </aside>

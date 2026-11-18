@@ -1,5 +1,9 @@
 <?php
 
+use App\Modulos\Compartido\Http\Middleware\CabecerasSeguridad;
+use App\Modulos\Identidad\Http\Controllers\SesionController;
+use App\Modulos\Identidad\Http\Middleware\CuentaActiva;
+use App\Modulos\Identidad\Http\Middleware\VerificarRol;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -13,11 +17,17 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'rol' => \App\Modulos\Identidad\Http\Middleware\VerificarRol::class,
-            'cuenta.activa' => \App\Modulos\Identidad\Http\Middleware\CuentaActiva::class,
+            'rol' => VerificarRol::class,
+            'cuenta.activa' => CuentaActiva::class,
         ]);
+        $middleware->append(CabecerasSeguridad::class);
+        // En el hosting la aplicación suele estar detrás de un proxy que termina HTTPS.
+        // Solo se confía en él si se declara (si no, un atacante podría falsificar su IP y evadir RB24).
+        if ($proxies = env('PAC_PROXIES_CONFIABLES')) {
+            $middleware->trustProxies(at: $proxies === '*' ? '*' : explode(',', $proxies));
+        }
         $middleware->redirectGuestsTo(fn () => route('login'));
-        $middleware->redirectUsersTo(fn (Request $request) => \App\Modulos\Identidad\Http\Controllers\SesionController::rutaInicio($request->user()));
+        $middleware->redirectUsersTo(fn (Request $request) => SesionController::rutaInicio($request->user()));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

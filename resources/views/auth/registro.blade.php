@@ -1,7 +1,7 @@
 @extends('layouts.invitado')
 @section('titulo', 'Registro de alumno')
 @section('contenido')
-<h2 class="text-2xl font-bold">Crear cuenta de alumno</h2>
+<h1 class="text-2xl font-bold">Crear cuenta de alumno</h1>
 <p class="mt-1 text-sm text-gray-600">Usa tu boleta y tu correo <strong>@alumno.ipn.mx</strong>.</p>
 
 <form method="POST" action="{{ url('/registro') }}" class="mt-8 space-y-5" novalidate>

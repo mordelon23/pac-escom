@@ -7,18 +7,31 @@ use App\Modulos\Asistencia\Modelos\SesionAsistencia;
 /**
  * Genera y valida los tokens del código QR dinámico (sección 22.6 del plan).
  *
- *   ventana = floor(tiempo_unix / 30)
+ *   ventana = floor(tiempo_unix / segundos_ventana)   (30 s por omisión, config pac.reglas)
  *   token   = HMAC-SHA256(secreto_de_la_sesion, id_sesion | ventana)
  *
  * Se acepta la ventana actual y la anterior para tolerar retrasos de red (RB20).
  */
 class ServicioTokenQR
 {
-    public const SEGUNDOS_VENTANA = 30;
+    public const VENTANA_PREDETERMINADA = 30;
+
+    private readonly int $ventana;
+
+    /** La duración se toma de config/pac.php; las pruebas unitarias pueden fijarla sin cargar Laravel. */
+    public function __construct(?int $segundosVentana = null)
+    {
+        $this->ventana = max(10, $segundosVentana ?? (int) config('pac.reglas.segundos_ventana_qr', self::VENTANA_PREDETERMINADA));
+    }
+
+    public function segundosVentana(): int
+    {
+        return $this->ventana;
+    }
 
     public function ventanaActual(?int $timestamp = null): int
     {
-        return intdiv($timestamp ?? now()->getTimestamp(), self::SEGUNDOS_VENTANA);
+        return intdiv($timestamp ?? now()->getTimestamp(), $this->ventana);
     }
 
     public function generar(SesionAsistencia $sesion, ?int $timestamp = null): string
@@ -46,7 +59,7 @@ class ServicioTokenQR
     {
         $t = $timestamp ?? now()->getTimestamp();
 
-        return self::SEGUNDOS_VENTANA - ($t % self::SEGUNDOS_VENTANA);
+        return $this->ventana - ($t % $this->ventana);
     }
 
     public static function nuevoSecreto(): string
@@ -56,6 +69,6 @@ class ServicioTokenQR
 
     private function firmar(SesionAsistencia $sesion, int $ventana): string
     {
-        return hash_hmac('sha256', $sesion->id . '|' . $ventana, $sesion->secreto_hmac);
+        return hash_hmac('sha256', $sesion->id.'|'.$ventana, $sesion->secreto_hmac);
     }
 }

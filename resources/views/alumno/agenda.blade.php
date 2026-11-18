@@ -2,6 +2,7 @@
 @section('contenido')
 <h1 class="text-2xl font-bold sm:text-3xl">Mi agenda cultural</h1>
 <p class="mt-1 text-gray-600">Actividades que guardaste para no perderlas de vista.</p>
+<h2 class="sr-only">Actividades guardadas</h2>
 <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
     @forelse ($actividades as $actividad)
         <div class="relative">

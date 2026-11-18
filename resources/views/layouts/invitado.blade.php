@@ -4,6 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('titulo', 'Iniciar sesión') · PAC ESCOM</title>
+    <meta name="theme-color" content="#6C1D45">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-gray-50 font-sans text-gray-900 antialiased">
@@ -15,7 +17,7 @@
             <span class="grid h-10 w-10 place-items-center rounded-lg bg-white/15">PAC</span> ESCOM · IPN
         </div>
         <div class="relative">
-            <h1 class="text-4xl font-bold leading-tight">Portal de<br>Actividades Culturales</h1>
+            <p class="text-4xl font-bold leading-tight">Portal de<br>Actividades Culturales</p>
             <p class="mt-4 max-w-md text-white/80">Consulta talleres, conciertos, torneos y exposiciones; inscríbete en línea y registra tu asistencia con tu teléfono.</p>
         </div>
         <p class="relative text-sm text-white/60">Escuela Superior de Cómputo</p>

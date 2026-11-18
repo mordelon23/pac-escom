@@ -28,7 +28,7 @@ use Illuminate\Notifications\Notifiable;
  * @property ?string $matricula
  * @property EstadoCuenta $estado
  */
-class Usuario extends Authenticatable implements MustVerifyEmail, CanResetPassword
+class Usuario extends Authenticatable implements CanResetPassword, MustVerifyEmail
 {
     use Notifiable, RestableceContrasena, VerificaCorreo;
 
@@ -132,7 +132,7 @@ class Usuario extends Authenticatable implements MustVerifyEmail, CanResetPasswo
 
     public function iniciales(): string
     {
-        return mb_strtoupper(mb_substr($this->nombre, 0, 1) . mb_substr($this->apellidos, 0, 1));
+        return mb_strtoupper(mb_substr($this->nombre, 0, 1).mb_substr($this->apellidos, 0, 1));
     }
 
     /* ---------------- Adaptación al esquema en español ---------------- */

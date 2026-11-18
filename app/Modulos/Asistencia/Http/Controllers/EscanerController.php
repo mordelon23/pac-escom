@@ -32,7 +32,7 @@ class EscanerController extends Controller
         try {
             $a = $accion->ejecutar($request->user(), (int) $datos['sesion'], $datos['token']);
             $a->load('sesion.horario.actividad');
-            $msg = 'Asistencia registrada: ' . $a->sesion->horario->actividad->titulo . ' (' . $a->registrada_en->format('H:i') . ').';
+            $msg = 'Asistencia registrada: '.$a->sesion->horario->actividad->titulo.' ('.$a->registrada_en->format('H:i').').';
             $ok = true;
         } catch (ReglaNegocioException $e) {
             $msg = $e->getMessage();
