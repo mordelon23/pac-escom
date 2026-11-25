@@ -25,6 +25,7 @@ class Inscripcion extends Model
         return [
             'estado' => EstadoInscripcion::class,
             'fecha_inscripcion' => 'datetime',
+            'recordatorio_enviado_en' => 'datetime',
             'fecha_cancelacion' => 'datetime',
         ];
     }

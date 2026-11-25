@@ -8,24 +8,38 @@ use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
-/** RF7 — Calendario mensual generado a partir de los horarios semanales de cada actividad. */
+/** RF7 — Calendario mensual y semanal generado a partir de los horarios semanales de cada actividad. */
 class CalendarioController extends Controller
 {
     public function __invoke(Request $request): View
     {
-        $mes = rescue(fn () => CarbonImmutable::createFromFormat('Y-m', (string) $request->query('mes'))->startOfMonth(),
-            CarbonImmutable::today()->startOfMonth(), false);
+        $vista = $request->query('vista') === 'semana' ? 'semana' : 'mes';
         $soloMias = $request->boolean('mias');
         $u = $request->user();
-        $ids = $soloMias ? $u->inscripcionesActivas()->pluck('actividad_id')->merge($u->agenda()->pluck('actividades.id'))->unique() : null;
 
+        if ($vista === 'semana') {
+            $base = rescue(fn () => CarbonImmutable::createFromFormat('Y-m-d', (string) $request->query('fecha'))->startOfDay(), CarbonImmutable::today(), false);
+            if (! $request->filled('fecha') && $base->isWeekend()) {
+                $base = $base->next(CarbonImmutable::MONDAY);   // en fin de semana se muestra la semana que viene
+            }
+            $inicio = $base->startOfWeek();
+            $fin = $inicio->addDays(4);   // las actividades se imparten de lunes a viernes
+            $mes = $inicio->startOfMonth();
+        } else {
+            $mes = rescue(fn () => CarbonImmutable::createFromFormat('Y-m', (string) $request->query('mes'))->startOfMonth(),
+                CarbonImmutable::today()->startOfMonth(), false);
+            $inicio = $mes->startOfWeek();
+            $fin = $mes->endOfMonth()->endOfWeek();
+        }
+
+        $ids = $soloMias ? $u->inscripcionesActivas()->pluck('actividad_id')->merge($u->agenda()->pluck('actividades.id'))->unique() : null;
         $actividades = Actividad::publicadas()->with(['horarios', 'categoria'])
-            ->where('fecha_inicio', '<=', $mes->endOfMonth())->where('fecha_fin', '>=', $mes)
+            ->where('fecha_inicio', '<=', $fin)->where('fecha_fin', '>=', $inicio)
             ->when($ids, fn ($q) => $q->whereIn('id', $ids))->get();
         $inscritas = $u->inscripcionesActivas()->pluck('actividad_id')->all();
 
         $dias = [];
-        for ($d = $mes->startOfWeek(); $d->lte($mes->endOfMonth()->endOfWeek()); $d = $d->addDay()) {
+        for ($d = $inicio; $d->lte($fin); $d = $d->addDay()) {
             $eventos = [];
             foreach ($actividades as $a) {
                 foreach ($a->horariosDelDia($d) as $h) {
@@ -33,9 +47,9 @@ class CalendarioController extends Controller
                 }
             }
             usort($eventos, fn ($x, $y) => strcmp($x['horario']->hora_inicio, $y['horario']->hora_inicio));
-            $dias[] = ['fecha' => $d, 'delMes' => $d->month === $mes->month, 'eventos' => $eventos];
+            $dias[] = ['fecha' => $d, 'delMes' => $vista === 'semana' || $d->month === $mes->month, 'eventos' => $eventos];
         }
 
-        return view('alumno.calendario', compact('mes', 'dias', 'soloMias'));
+        return view('alumno.calendario', compact('vista', 'mes', 'inicio', 'fin', 'dias', 'soloMias'));
     }
 }

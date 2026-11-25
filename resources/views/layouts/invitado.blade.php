@@ -29,6 +29,7 @@
             </div>
             @include('partials.flash')
             @yield('contenido')
+            <p class="mt-8 text-center text-xs text-gray-500"><a href="{{ route('aviso-privacidad') }}" class="underline hover:text-guinda-700">Aviso de privacidad</a></p>
         </div>
     </main>
 </div>

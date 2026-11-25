@@ -26,9 +26,12 @@ class InicioAlumnoController extends Controller
             }
         }
 
-        // Recomendaciones: actividades de las categorías que el alumno ya eligió, en las que no está inscrito
+        // RF12 — Recomendaciones según las categorías de sus inscripciones previas y de su agenda (favoritos),
+        // excluyendo las actividades en las que ya está inscrito.
         $categorias = $alumno->inscripciones()->join('actividades', 'actividades.id', '=', 'inscripciones.actividad_id')
-            ->pluck('actividades.categoria_id')->unique();
+            ->pluck('actividades.categoria_id')
+            ->merge($alumno->agenda()->pluck('actividades.categoria_id'))
+            ->unique();
         $recomendadas = Actividad::publicadas()->with('categoria', 'horarios')
             ->where('fecha_fin', '>=', today())
             ->whereNotIn('id', $activas->pluck('actividad_id'))

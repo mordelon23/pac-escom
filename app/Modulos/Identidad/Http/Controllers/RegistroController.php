@@ -27,6 +27,8 @@ class RegistroController extends Controller
             'rol_id' => Rol::where('clave', RolSistema::ALUMNO->value)->value('id'),
             ...$request->safe()->only(['matricula', 'nombre', 'apellidos', 'correo', 'password']),
         ]);
+        // RNF8: evidencia de la aceptación expresa del aviso de privacidad.
+        $usuario->forceFill(['aviso_privacidad_aceptado_en' => now()])->save();
 
         if (config('pac.verificar_correo')) {
             Notificador::intentar(fn () => event(new Registered($usuario)), 'correo de verificación');   // envía el correo de verificación

@@ -35,8 +35,8 @@ class EficienciaTest extends TestCase
         $mes = now()->subMonth()->toDateString();
 
         $pantallas = [
-            [$alumno, ['/inicio', '/actividades', "/actividades/{$a->id}", '/mis-actividades', '/calendario', '/agenda', '/muro', '/ayuda', '/calendario/mis-actividades.ics']],
-            [$resp, ['/responsable', "/responsable/sesiones/{$s->id}", "/responsable/sesiones/{$s->id}/estado"]],
+            [$alumno, ['/inicio', '/actividades', "/actividades/{$a->id}", '/mis-actividades', '/calendario', '/calendario?vista=semana', '/agenda', '/muro', '/ayuda', '/mi-cuenta', '/calendario/mis-actividades.ics']],
+            [$resp, ['/responsable', "/responsable/sesiones/{$s->id}", "/responsable/sesiones/{$s->id}/estado", "/responsable/actividades/{$s->horario->actividad_id}/asistencia"]],
             [$coord, ['/coordinacion', '/coordinacion/actividades', "/coordinacion/actividades/{$a->id}", "/coordinacion/actividades/{$a->id}/edit",
                 "/coordinacion/reportes?desde={$mes}", "/coordinacion/reportes?desde={$mes}&formato=xlsx", '/coordinacion/muro']],
         ];

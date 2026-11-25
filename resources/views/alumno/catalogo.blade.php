@@ -7,8 +7,8 @@
     </div>
 </div>
 
-<form method="GET" class="tarjeta mt-6 grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-[1fr_12rem_10rem_auto_auto] lg:items-end" role="search">
-    <div>
+<form method="GET" class="tarjeta mt-6 grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-6 lg:items-end" role="search">
+    <div class="sm:col-span-2">
         <label for="q" class="etiqueta">Buscar</label>
         <input id="q" name="q" type="search" class="campo" value="{{ $filtros['q'] ?? '' }}" placeholder="Título, lugar o palabra clave">
     </div>
@@ -22,6 +22,15 @@
         </select>
     </div>
     <div>
+        <label for="lugar" class="etiqueta">Lugar</label>
+        <select id="lugar" name="lugar" class="campo">
+            <option value="">Todos</option>
+            @foreach ($lugares as $l)
+                <option value="{{ $l }}" @selected(($filtros['lugar'] ?? null) === $l)>{{ $l }}</option>
+            @endforeach
+        </select>
+    </div>
+    <div>
         <label for="dia" class="etiqueta">Día</label>
         <select id="dia" name="dia" class="campo">
             <option value="">Cualquiera</option>
@@ -30,12 +39,18 @@
             @endforeach
         </select>
     </div>
-    <label class="flex items-center gap-2 pb-2.5 text-sm text-gray-700">
-        <input type="checkbox" name="disponibles" value="1" class="h-4 w-4 accent-guinda-700" @checked($filtros['disponibles'] ?? false)> Solo con lugares
-    </label>
-    <div class="flex gap-2">
-        <button class="btn-primario flex-1 lg:flex-none">Filtrar</button>
-        @if (array_filter($filtros))<a href="{{ route('actividades.index') }}" class="btn-secundario">Limpiar</a>@endif
+    <div>
+        <label for="fecha" class="etiqueta">Fecha</label>
+        <input id="fecha" name="fecha" type="date" class="campo" value="{{ $filtros['fecha'] ?? '' }}" min="{{ today()->toDateString() }}">
+    </div>
+    <div class="flex flex-wrap items-center gap-3 sm:col-span-2 lg:col-span-6">
+        <label class="flex items-center gap-2 text-sm text-gray-700">
+            <input type="checkbox" name="disponibles" value="1" class="h-4 w-4 accent-guinda-700" @checked($filtros['disponibles'] ?? false)> Solo con lugares
+        </label>
+        <div class="ml-auto flex gap-2">
+            @if (array_filter($filtros))<a href="{{ route('actividades.index') }}" class="btn-secundario">Limpiar</a>@endif
+            <button class="btn-primario">Filtrar</button>
+        </div>
     </div>
 </form>
 

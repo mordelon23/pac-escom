@@ -21,7 +21,8 @@
     <div class="flex gap-2">
         <a class="btn-secundario" href="{{ request()->fullUrlWithQuery(['formato' => 'xlsx']) }}">Descargar Excel (.xlsx)</a>
         <a class="btn-secundario" href="{{ request()->fullUrlWithQuery(['formato' => 'csv']) }}">CSV</a>
-        <a class="btn-secundario" target="_blank" href="{{ request()->fullUrlWithQuery(['formato' => 'imprimir']) }}">Versión imprimible / PDF</a>
+        <a class="btn-secundario" href="{{ request()->fullUrlWithQuery(['formato' => 'pdf']) }}">Descargar PDF</a>
+        <a class="btn-secundario" target="_blank" href="{{ request()->fullUrlWithQuery(['formato' => 'imprimir']) }}">Versión imprimible</a>
     </div>
 </div>
 

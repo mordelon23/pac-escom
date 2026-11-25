@@ -44,6 +44,7 @@ class Usuario extends Authenticatable implements CanResetPassword, MustVerifyEma
     protected function casts(): array
     {
         return [
+            'aviso_privacidad_aceptado_en' => 'datetime',
             'correo_verificado_en' => 'datetime',
             'password' => 'hashed',
             'estado' => EstadoCuenta::class,

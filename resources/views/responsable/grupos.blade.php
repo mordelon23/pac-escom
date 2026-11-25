@@ -37,6 +37,7 @@
                 <li class="py-2.5">
                     <div class="font-medium">{{ $a->titulo }}</div>
                     <div class="text-gray-600">{{ $a->horarios->map(fn ($h) => $h->dia_semana->abreviatura() . ' ' . $h->rango())->implode(' · ') }}</div>
+                    <a href="{{ route('responsable.lista', $a) }}" class="mt-1 inline-block text-xs font-medium text-guinda-700 hover:underline">Lista de asistencia</a>
                 </li>
             @empty
                 <li class="py-4 text-gray-600">No tienes actividades asignadas.</li>

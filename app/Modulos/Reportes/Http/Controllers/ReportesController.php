@@ -5,6 +5,7 @@ namespace App\Modulos\Reportes\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modulos\Actividades\Modelos\Categoria;
 use App\Modulos\Compartido\Auditoria\Auditor;
+use App\Modulos\Compartido\Exportacion\DocumentoPdf;
 use App\Modulos\Compartido\Exportacion\HojaXlsx;
 use App\Modulos\Reportes\Servicios\ReporteParticipacion;
 use Carbon\CarbonImmutable;
@@ -19,7 +20,7 @@ class ReportesController extends Controller
     {
         $f = $request->validate([
             'desde' => ['nullable', 'date'], 'hasta' => ['nullable', 'date', 'after_or_equal:desde'],
-            'categoria' => ['nullable', 'integer', 'exists:categorias,id'], 'formato' => ['nullable', 'in:xlsx,csv,imprimir'],
+            'categoria' => ['nullable', 'integer', 'exists:categorias,id'], 'formato' => ['nullable', 'in:xlsx,csv,pdf,imprimir'],
         ]);
         $desde = CarbonImmutable::parse($f['desde'] ?? now()->startOfMonth()->subMonth());
         $hasta = CarbonImmutable::parse($f['hasta'] ?? now()->endOfMonth());
@@ -31,18 +32,32 @@ class ReportesController extends Controller
             return $f['formato'] === 'xlsx' ? $this->xlsx($filas, $desde, $hasta) : $this->csv($filas, $desde, $hasta);
         }
 
+        $totales = [
+            'inscritos' => $filas->sum('inscritos'), 'sesiones' => $filas->sum('sesiones'),
+            'asistencias' => $filas->sum('asistencias'), 'manuales' => $filas->sum('manuales'),
+        ];
+
+        if (($f['formato'] ?? null) === 'pdf') {
+            Auditor::registrar('reporte.exportar', 'actividades', null, ['formato' => 'pdf', 'desde' => $desde->toDateString(), 'hasta' => $hasta->toDateString()]);
+            $esperadas = $filas->sum(fn ($r) => $r->sesiones * $r->inscritos);
+            $pdf = DocumentoPdf::desdeVista('pdf.reporte-participacion', [
+                'filas' => $filas, 'desde' => $desde, 'hasta' => $hasta, 'autor' => $request->user()->nombreCompleto(),
+                'categoriaNombre' => isset($f['categoria']) ? Categoria::find($f['categoria'])?->nombre : null,
+                'totales' => $totales + ['porcentaje' => $esperadas > 0 ? round($totales['asistencias'] * 100 / $esperadas, 1) : null],
+            ], horizontal: true);
+
+            return DocumentoPdf::descarga($pdf, 'reporte-participacion-'.$desde->format('Ymd').'-'.$hasta->format('Ymd').'.pdf');
+        }
+
         $vista = ($f['formato'] ?? null) === 'imprimir' ? 'coordinacion.reporte-imprimible' : 'coordinacion.reportes';
         if ($vista === 'coordinacion.reporte-imprimible') {
-            Auditor::registrar('reporte.exportar', 'actividades', null, ['formato' => 'pdf']);
+            Auditor::registrar('reporte.exportar', 'actividades', null, ['formato' => 'imprimir']);
         }
 
         return view($vista, [
             'filas' => $filas, 'desde' => $desde, 'hasta' => $hasta,
             'categorias' => Categoria::orderBy('nombre')->get(), 'categoria' => $f['categoria'] ?? null,
-            'totales' => [
-                'inscritos' => $filas->sum('inscritos'), 'sesiones' => $filas->sum('sesiones'),
-                'asistencias' => $filas->sum('asistencias'), 'manuales' => $filas->sum('manuales'),
-            ],
+            'totales' => $totales,
         ]);
     }
 

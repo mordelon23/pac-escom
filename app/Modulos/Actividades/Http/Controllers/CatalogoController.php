@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modulos\Actividades\Enums\DiaSemana;
 use App\Modulos\Actividades\Modelos\Actividad;
 use App\Modulos\Actividades\Modelos\Categoria;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -18,6 +19,8 @@ class CatalogoController extends Controller
             'q' => ['nullable', 'string', 'max:80'],
             'categoria' => ['nullable', 'integer', 'exists:categorias,id'],
             'dia' => ['nullable', 'integer', 'between:1,5'],
+            'fecha' => ['nullable', 'date'],
+            'lugar' => ['nullable', 'string', 'max:120'],
             'disponibles' => ['nullable', 'boolean'],
         ]);
 
@@ -30,6 +33,10 @@ class CatalogoController extends Controller
                 ->orWhereRaw('lugar ILIKE ?', ["%{$t}%"])))
             ->when($filtros['categoria'] ?? null, fn ($q, $c) => $q->where('categoria_id', $c))
             ->when($filtros['dia'] ?? null, fn ($q, $d) => $q->whereHas('horarios', fn ($h) => $h->where('dia_semana', $d)))
+            ->when($filtros['lugar'] ?? null, fn ($q, $l) => $q->where('lugar', $l))
+            // Fecha: actividades vigentes ese día y con sesión en ese día de la semana.
+            ->when($filtros['fecha'] ?? null, fn ($q, $f) => $q->whereDate('fecha_inicio', '<=', $f)->whereDate('fecha_fin', '>=', $f)
+                ->whereHas('horarios', fn ($h) => $h->where('dia_semana', Carbon::parse($f)->dayOfWeekIso)))
             ->when($filtros['disponibles'] ?? false, fn ($q) => $q->whereColumn('cupo_ocupado', '<', 'cupo_maximo'))
             ->orderBy('fecha_inicio')->orderBy('titulo')
             ->paginate(9)->withQueryString();
@@ -40,6 +47,7 @@ class CatalogoController extends Controller
             'actividades' => $actividades,
             'categorias' => Categoria::orderBy('nombre')->get(),
             'dias' => DiaSemana::cases(),
+            'lugares' => Actividad::publicadas()->where('fecha_fin', '>=', today())->distinct()->orderBy('lugar')->pluck('lugar'),
             'filtros' => $filtros,
             'inscritas' => $inscritas,
         ]);

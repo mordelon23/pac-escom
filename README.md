@@ -94,6 +94,7 @@ Las pruebas usan la base `pac_test` (ver `phpunit.xml`). Cubren las reglas de ne
 | `tests/Feature/Reglas/ActividadesTest.php` | CU11: borrador con horarios, publicación (RB10), cupo (RB5), horarios con sesiones (RB26), cancelación (RB8) |
 | `tests/Feature/Reglas/ComunidadUsuariosTest.php` | RB16 (muro y moderación), CU15 y RB25 (usuarios) |
 | `tests/Feature/Http/PantallasTest.php` | Todas las pantallas por rol, flujo QR por HTTP, formulario de actividad y CSV |
+| `tests/Feature/Requisitos/CompletitudTest.php` | RF6 (lugar y fecha), RF7 (semana), RF8 (recordatorio sin duplicados), RF9 (PDF y lista de asistencia, RB17), RF12 (agenda), RNF8 (aviso y aceptación) y Mi cuenta |
 | `tests/Feature/Calidad/*` | Características ISO 9126: seguridad, fiabilidad (correo caído, errores, D-11), interoperabilidad (.xlsx, .ics), eficiencia (consultas y tiempo por pantalla), mantenibilidad (reglas configurables) y portabilidad (`pac:verificar`, `pac:respaldo`) |
 
 ---
@@ -151,7 +152,7 @@ Pasos generales:
 5. `php artisan storage:link` y `php artisan optimize`.
 6. `SESSION_SECURE_COOKIE=true` y, si el hosting usa proxy, `PAC_PROXIES_CONFIABLES=*`.
 7. `php artisan pac:verificar` revisa también los ajustes de producción (APP_DEBUG, HTTPS, cookie segura, contraseña del superadministrador).
-8. Programa `php artisan schedule:run` cada minuto (cron) para el respaldo diario `pac:respaldo`.
+8. Programa `php artisan schedule:run` cada minuto (cron): ejecuta el respaldo diario `pac:respaldo` y, cada hora, los recordatorios `pac:recordatorios` (RF8). En local puedes dejarlo corriendo con `php artisan schedule:work`.
 9. Monitorea `https://tu-dominio/up`: responde 200 si la aplicación **y** la base de datos están disponibles.
 
 ---
@@ -160,11 +161,11 @@ Pasos generales:
 
 | Rol | Pantallas |
 |---|---|
-| Alumno | Inicio con próximas sesiones y recomendaciones · catálogo con filtros · detalle e inscripción · mis actividades e historial · calendario mensual con exportación a Google Calendar/Outlook (.ics) · agenda cultural · muro social · escáner de QR |
-| Responsable de grupo | Mis grupos y sesiones de hoy · sesión con QR dinámico (se renueva cada 30 s) · modo contingencia con bitácora · resumen de asistencia |
-| Coordinador | Panel con indicadores · actividades (crear, editar, publicar, cancelar, eliminar borrador) con horarios semanales · inscritos · reportes (pantalla, Excel .xlsx, CSV, versión imprimible/PDF) · moderación del muro · sesiones |
+| Alumno | Inicio con próximas sesiones y recomendaciones (según inscripciones y agenda) · catálogo con filtros por categoría, lugar, día y fecha · detalle e inscripción · mis actividades e historial · calendario **mensual y semanal** con exportación a Google Calendar/Outlook (.ics) · agenda cultural · muro social · escáner de QR · correo de confirmación y **recordatorio 24 h antes** |
+| Responsable de grupo | Mis grupos y sesiones de hoy · sesión con QR dinámico (se renueva cada 30 s) · modo contingencia con bitácora · resumen de asistencia · **lista de asistencia** por actividad (alumno × sesión) en pantalla, Excel y PDF |
+| Coordinador | Panel con indicadores · actividades (crear, editar, publicar, cancelar, eliminar borrador) con horarios semanales · inscritos · reportes (pantalla, **PDF generado en el servidor**, Excel .xlsx, CSV y versión imprimible) · lista de asistencia de cualquier actividad · moderación del muro · sesiones |
 | Superadministrador | Todo lo del coordinador + usuarios y roles (alta de personal, cambio de rol, suspensión y reactivación) |
-| Todos | Pantalla de **Ayuda** con preguntas frecuentes según el rol · páginas de error en español |
+| Todos | **Mi cuenta** (datos registrados y cambio de contraseña) · **Ayuda** según el rol · **aviso de privacidad** público · páginas de error en español |
 
 ### Probar el pase de lista con QR
 1. Entra como `chernandez@ipn.mx` → **Mis grupos** → «Abrir sesión de asistencia» (Ajedrez se imparte de lunes a viernes).
@@ -182,6 +183,7 @@ Pasos generales:
 | 4 | Sesión con QR dinámico, escáner del alumno, contingencia y resumen | ✅ |
 | 5 | Agenda, calendario, muro y moderación, reportes, usuarios y roles | ✅ |
 | 6 | Evaluación de calidad ISO/IEC 9126 / 25010 y correcciones (ver abajo) | ✅ |
+| 7 | Cierre de requisitos: recordatorio 24 h (RF8), PDF del servidor y lista de asistencia (RF9), vista semanal (RF7), filtros por lugar y fecha (RF6), recomendaciones con agenda (RF12), aviso de privacidad (RNF8), Mi cuenta | ✅ |
 | Pendiente | Pruebas con usuarios (SUS), análisis OWASP ZAP y prueba de carga de 200 usuarios en el servidor de producción | ⏳ |
 
 ---
@@ -193,13 +195,13 @@ Pasos generales:
 | Funcionalidad · seguridad | RBAC, contraseñas con hash, bloqueo por intentos (RB24), auditoría de inicios de sesión, CSRF, cabeceras de seguridad y CSP sin JavaScript en línea, exportaciones protegidas contra inyección de fórmulas | `tests/Feature/Calidad/SeguridadTest.php`, `curl -I http://127.0.0.1:8000/login` |
 | Funcionalidad · interoperabilidad | Reporte en Excel nativo (.xlsx) y CSV; calendario .ics; QR legible por cualquier app de cámara | `CaracteristicasTest.php` |
 | Fiabilidad | Las operaciones no fallan si cae el correo; páginas de error propias; aviso de contingencia si se pierde la red; `/up` revisa la base de datos; respaldo `php artisan pac:respaldo` (diario) | `FiabilidadTest.php` |
-| Usabilidad | Pantalla de Ayuda por rol; 0 violaciones WCAG 2.1 AA (axe-core) en las 23 pantallas, en escritorio y teléfono | Lighthouse o axe DevTools |
+| Usabilidad | Pantalla de Ayuda por rol; 0 violaciones WCAG 2.1 AA (axe-core) en las 27 pantallas, en escritorio y teléfono | Lighthouse o axe DevTools |
 | Eficiencia | Índices en llaves foráneas; ≤ 15 consultas por pantalla; modo estricto contra consultas N+1; la pantalla del QR deja de consultar cuando la pestaña está oculta | `EficienciaTest.php` |
 | Mantenibilidad | Módulos por dominio, reglas de negocio configurables, estilo verificado con Pint, integración continua en GitHub Actions | `composer lint`, `.github/workflows/pruebas.yml` |
 | Portabilidad | Configuración solo por `.env`, comando `pac:verificar`, instrucciones para Linux y Windows, proxy HTTPS | `php artisan pac:verificar` |
 
 ```bash
-php artisan test        # 73 pruebas (reglas de negocio + calidad)
+php artisan test        # 81 pruebas (reglas de negocio, requisitos y calidad)
 composer lint           # estilo del código
 php artisan pac:respaldo
 ```

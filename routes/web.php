@@ -6,10 +6,12 @@ use App\Modulos\Actividades\Http\Controllers\GestionActividadesController;
 use App\Modulos\Actividades\Http\Controllers\PanelCoordinacionController;
 use App\Modulos\Asistencia\Http\Controllers\EscanerController;
 use App\Modulos\Asistencia\Http\Controllers\GruposController;
+use App\Modulos\Asistencia\Http\Controllers\ListaAsistenciaController;
 use App\Modulos\Asistencia\Http\Controllers\SesionAsistenciaController;
 use App\Modulos\Comunidad\Http\Controllers\ModeracionController;
 use App\Modulos\Comunidad\Http\Controllers\MuroController;
 use App\Modulos\Identidad\Http\Controllers\ContrasenaController;
+use App\Modulos\Identidad\Http\Controllers\CuentaController;
 use App\Modulos\Identidad\Http\Controllers\RegistroController;
 use App\Modulos\Identidad\Http\Controllers\SesionController;
 use App\Modulos\Identidad\Http\Controllers\UsuariosController;
@@ -30,6 +32,9 @@ Route::get('/', fn () => auth()->check()
     : redirect()->route('login'));
 
 /* ---------- Identidad y acceso (invitados) ---------- */
+// RNF8: aviso de privacidad público (accesible con o sin sesión).
+Route::view('/aviso-de-privacidad', 'aviso-privacidad')->name('aviso-privacidad');
+
 Route::middleware('guest')->group(function () {
     Route::get('/login', [SesionController::class, 'create'])->name('login');
     Route::post('/login', [SesionController::class, 'store'])->middleware('throttle:20,1');
@@ -44,6 +49,8 @@ Route::middleware('guest')->group(function () {
 Route::middleware(['auth', 'cuenta.activa'])->group(function () {
     Route::post('/logout', [SesionController::class, 'destroy'])->name('logout');
     Route::view('/ayuda', 'ayuda')->name('ayuda');
+    Route::get('/mi-cuenta', [CuentaController::class, 'show'])->name('cuenta');
+    Route::put('/mi-cuenta/contrasena', [CuentaController::class, 'actualizarContrasena'])->middleware('throttle:10,1')->name('cuenta.contrasena');
 
     /* ---------- Alumno ---------- */
     Route::middleware('rol:alumno')->group(function () {
@@ -75,6 +82,7 @@ Route::middleware(['auth', 'cuenta.activa'])->group(function () {
         Route::patch('/sesiones/{sesion}/reanudar', [SesionAsistenciaController::class, 'reanudar'])->name('sesiones.reanudar');
         Route::post('/sesiones/{sesion}/manual', [SesionAsistenciaController::class, 'registrarManual'])->name('sesiones.manual');
         Route::patch('/sesiones/{sesion}/cerrar', [SesionAsistenciaController::class, 'cerrar'])->name('sesiones.cerrar');
+        Route::get('/actividades/{actividad}/asistencia', ListaAsistenciaController::class)->name('lista');
     });
 
     /* ---------- Coordinación (el superadministrador hereda el acceso) ---------- */

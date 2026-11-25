@@ -41,11 +41,15 @@
             @endforeach
         </nav>
         <div class="ml-auto flex items-center gap-3">
-            <div class="hidden text-right text-xs leading-tight sm:block">
-                <div class="font-semibold">{{ $u->nombreCompleto() }}</div>
-                <div class="text-white/75">{{ $u->rolSistema()->etiqueta() }}</div>
-            </div>
-            <span class="grid h-9 w-9 place-items-center rounded-full bg-white/20 text-sm font-bold" aria-hidden="true">{{ $u->iniciales() }}</span>
+            <a href="{{ route('cuenta') }}" @class(['flex items-center gap-3 rounded-lg px-2 py-1 hover:bg-white/10', 'bg-white/15' => request()->routeIs('cuenta')])
+               title="Mi cuenta" @if(request()->routeIs('cuenta')) aria-current="page" @endif>
+                <span class="hidden text-right text-xs leading-tight sm:block">
+                    <span class="block font-semibold">{{ $u->nombreCompleto() }}</span>
+                    <span class="block text-white/75">{{ $u->rolSistema()->etiqueta() }}</span>
+                </span>
+                <span class="grid h-9 w-9 place-items-center rounded-full bg-white/20 text-sm font-bold" aria-hidden="true">{{ $u->iniciales() }}</span>
+                <span class="sr-only sm:hidden">Mi cuenta</span>
+            </a>
             <a href="{{ route('ayuda') }}" @class(['rounded-lg px-3 py-2 text-sm font-medium hover:bg-white/10', 'bg-white/15' => request()->routeIs('ayuda')])
                @if(request()->routeIs('ayuda')) aria-current="page" @endif>Ayuda</a>
             <button type="button" class="rounded-lg px-3 py-2 text-sm font-medium hover:bg-white/10"
@@ -80,7 +84,8 @@
 </main>
 
 <footer class="mx-auto max-w-6xl px-4 pb-8 pt-4 text-xs text-gray-500">
-    Portal de Actividades Culturales · Escuela Superior de Cómputo · IPN
+    Portal de Actividades Culturales · Escuela Superior de Cómputo · IPN ·
+    <a href="{{ route('aviso-privacidad') }}" class="underline hover:text-guinda-700">Aviso de privacidad</a>
 </footer>
 </body>
 </html>

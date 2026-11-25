@@ -42,7 +42,7 @@
     </div>
     <label class="flex items-start gap-2 text-sm text-gray-700">
         <input type="checkbox" name="aviso_privacidad" value="1" class="mt-0.5 h-4 w-4 accent-guinda-700" @checked(old('aviso_privacidad'))>
-        <span>He leído y acepto el aviso de privacidad. Mis datos se usarán solo para la gestión de actividades culturales.</span>
+        <span>He leído y acepto el <a href="{{ route('aviso-privacidad') }}" target="_blank" rel="noopener" class="font-medium text-guinda-700 underline">aviso de privacidad</a>. Mis datos se usarán solo para la gestión de actividades culturales.</span>
     </label>
     @error('aviso_privacidad')<p class="error">{{ $message }}</p>@enderror
     <button type="submit" class="btn-primario w-full">Crear cuenta</button>

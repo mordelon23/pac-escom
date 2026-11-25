@@ -37,7 +37,7 @@ class SeguridadTest extends TestCase
         $alumno = $this->usuario();
         $a = $this->actividad(['fecha_inicio' => now()->subDay()->toDateString()]);
         $coord = $this->usuario(RolSistema::SUPERADMINISTRADOR);
-        $paginas = [[$alumno, '/inicio'], [$alumno, "/actividades/{$a->id}"], [$alumno, '/mis-actividades'], [$alumno, '/ayuda'],
+        $paginas = [[$alumno, '/inicio'], [$alumno, "/actividades/{$a->id}"], [$alumno, '/mis-actividades'], [$alumno, '/ayuda'], [$alumno, '/mi-cuenta'], [$alumno, '/calendario?vista=semana'], [$alumno, '/aviso-de-privacidad'],
             [$coord, "/coordinacion/actividades/{$a->id}"], [$coord, '/coordinacion/actividades/create'], [$coord, '/coordinacion/usuarios'],
             [$coord, '/coordinacion/reportes?formato=imprimir']];
         foreach ($paginas as [$u, $url]) {

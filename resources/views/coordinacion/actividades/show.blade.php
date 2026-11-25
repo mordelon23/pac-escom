@@ -43,7 +43,10 @@
             </div>
         </section>
         <section class="tarjeta p-5">
-            <h2 class="font-semibold">Últimas sesiones de asistencia</h2>
+            <div class="flex items-center justify-between gap-2">
+                <h2 class="font-semibold">Últimas sesiones de asistencia</h2>
+                <a href="{{ route('responsable.lista', $actividad) }}" class="text-sm font-medium text-guinda-700 hover:underline">Lista de asistencia completa</a>
+            </div>
             <ul class="mt-3 divide-y divide-gray-100 text-sm">
                 @forelse ($sesiones as $s)
                     <li class="flex justify-between py-2"><span>{{ $s->fecha->locale('es')->isoFormat('dddd D [de] MMMM') }}</span>
